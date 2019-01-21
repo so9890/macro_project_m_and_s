@@ -23,7 +23,9 @@ year_category = {
 """ Reading in necessary zip files
 
 Need to get income information by variable 'newid'. 
-This information is given in the 
+This information is given in the itib files 
+
+working with zip files: https://www.geeksforgeeks.org/working-zip-files-python/
 
  """
 

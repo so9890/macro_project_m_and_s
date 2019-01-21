@@ -22,10 +22,10 @@ file_names =['food_and_beverages',
 ## Merge Datasets
 #------------------------------------------------------------------------
 
-data = pd.read_excel('../../data/CPI_Data/food_and_beverages.xlsx')
+data = pd.read_excel('../data/CPI_Data/food_and_beverages.xlsx')
 
 for i in file_names[1:]:  
-    data_helper = pd.read_excel('../../data/CPI_Data/'+ str(i) +'.xlsx')
+    data_helper = pd.read_excel('../data/CPI_Data/'+ str(i) +'.xlsx')
     ## ensure same column names
     data_helper.columns= data.columns
     data = pd.concat([data, data_helper], sort= False)

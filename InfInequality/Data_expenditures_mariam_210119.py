@@ -14,7 +14,6 @@ goods in the total expenditure
 """
 
 os.chdir('C:\\Users\\admin\\Documents\\BGSE3rdsem\\macro')
-end_of_year = [
     '96',
     '97',
     '98',

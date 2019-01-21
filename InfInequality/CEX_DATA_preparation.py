@@ -1,8 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 18 15:10:23 2018
+import numpy as np
+import pandas as pd
+import os
 
-@author: sdobkowitz
+
+"""
+Construct household level data on expenditures and weights of each category of
+goods in the total expenditure
+
 """
 
-expen17_apa17_cex = pd.read_csv(r'C:\Users\sdobkowitz\Desktop\macro_topics\CEX_Data\expn17\apa17.csv', header = 0, sep=',' )
+os.chdir('../data/CEX_Data')
+end_of_year = [
+
+    '17']
+
+year_category = {
+    'year': pd.Series(data=end_of_year),
+    'expend_cat': pd.Series(data=os.listdir())
+}
+
+""" Reading in necessary zip files
+
+Need to get income information by variable 'newid'. 
+This information is given in the 
+
+ """
+

@@ -96,15 +96,15 @@ data=data.merge(helperI[['Code Value','Code Description']], left_on= 'UCC', righ
 
 #match_NEWID= data[data['NEWID']==657965]
     
-""" have to find out whether all households have a variable 'Income before tax' : No they don't, I sent an email to CE"""
-    
-#hh= pd.unique(data['NEWID'])
-    
-#income_pre_tax= data[data['UCC']==980000]
-# check whether the number of unique households in this data set and in the full data set matches
-#hh_income_pre_tax =  pd.unique(income_pre_tax['NEWID'])
-# no it is not!!! there are 528 missing 
-    
+""" Test how many households will be missing due to no income reported."""
+
+if len(pd.unique(data['NEWID']))==len(pd.unique(data[data['UCC']==980000]['NEWID'])):
+    print('All households reported income')
+else:
+    s = len(pd.unique(data['NEWID']))-len(pd.unique(data[data['UCC']==980000]['NEWID']))
+    print(s, ' households did not report income and will be missing.' )
+ 
+
 """ Derive percentile per month accounting for weights.
 
 Note that the UCC-item 'Income before taxes' and 'Income after taxes' don't 
@@ -112,27 +112,90 @@ need to be divided by 4! a specified for other income variables in the ITBI/ITII
 
 """
        
-#Only keep income before taxes and income after taxes as UCC, in separate data frames
-
 income_data_before_tax=data[data['UCC']==980000]
-income_data_after_tax=data[data['UCC']==980070]    
+#income_data_after_tax=data[data['UCC']==980070]    
 
- 
+"""1) only keep entries of one given month, later to be included in a loop"""
     
+income_12_1995=income_data_before_tax[income_data_before_tax['REFMO']==12 ]
+# ensure there is only one year! 
+if len(pd.unique(income_12_1995['REFYR']))==1:
+    print('test passed: only one year')
+else:
+    print('test failed: several years although there should only be one!')
     
+"""  2) calculate income percentiles.
     
+    I follow http://yiqun-dai.blogspot.com/2017/03/weighted-percentile-in-python-pandas.html
+
+"""
+d=income_12_1995
+
+
+def weighted_percentile(d):
+    """ Calculate the percentile of each household.
+     
+    1) Sum up the weights assigned to each household in the sample. 
+       This gives the total amount of households represented by the sample.
+    2) Multiply total amount of households represented by sample with the
+       respective percentile to get the amount of households that are below
+       a certain percentile.
+    3) Sort the data starting from the lowest income in ascending order. 
+       Add up the weights starting from the lowest income.
+       All households with cumulated weights below the threshold fall within
+       the given percentile. 
+       
+    d is the data set
+
+    """
     
+    d_sorted= d[:100].sort_values('VALUE', na_position= 'first') # this creates a copy! So changing d_sorted does not change d!!
+    d_sorted['index_sorted']= range(len(d_sorted))
+    d_sorted['Percentile']= ""
+    d_sorted['Cum_weights']=""
+    d_sorted['Percentage_below']=""
+    n= d[:100]['FINLWT21'].sum() 
+    start = 0           # variable 'start' so not to overwright those percentiles already assigned! 
+    cum_weight=0.0
     
+    for p in range(1, 50, 1):
+
+        for i in range(start,len(d_sorted)):
+   
+            cum_weight += d_sorted['FINLWT21'].iloc[i]
+            d_sorted['Cum_weights'].iloc[i]=cum_weight
+            d_sorted['Percentage_below'].iloc[i]= cum_weight/n
+            if cum_weight/n < p/100 :
+                                     # note that the second condition from Kneip 
+                                     # script is not needed as we work upwards from lowest values, 
+                                     # and stop whenever the probability exceeds the percentile. 
+                d_sorted.loc[:,'Percentile'].iloc[i]=p
+                            
+            elif cum_weight/n >= p/100 and (1-cum_weight/n+ d_sorted['FINLWT21'].iloc[i]/n)>=1-p/100: # at threshold
+                
+                d_sorted.loc[:,'Percentile'].iloc[i]=p
+                
+            else: 
+                start = (i)   # since at the point of the break i is the index of the observation 
+                                  # this is from where the operation has to start from for the next percentile.
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+                cum_weight=d_sorted['Cum_weights'].iloc[(i-1)]    # the loop stops, ie. i, has already been added to
+                                                                      # we have to ensure that the next loop starts from 
+                                                                      # the previous cumulative value! Otherwise weight 
+                                                                      # added twice!
+                break
+#                else: 
+ #                   print('smallest observation falls is treated wrongly')
+                    
+        print('percentile', p, 'done!')
+        
+    return d_sorted[['NEWID','Cum_weights','FINLWT21','Percentile']]
+
+"""NOW AS NEXT STEP HAVE TO THINK ABOUT HOW TO DEAL WITH EQUAL OBSERVATIONS"""
+# alternative    
+#d_sorted['Cum_weights_alt']=""   
+#for i in range(start,len(d_sorted)):
+ #   d_sorted['Cum_weights_alt'].iloc[i]= d_sorted['FINLWT21'][:i+1].sum()
+# works but also slow    
     
     

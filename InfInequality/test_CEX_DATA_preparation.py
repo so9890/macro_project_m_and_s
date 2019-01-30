@@ -39,3 +39,29 @@ def expected_weighted_percentile():
     
     return out
 
+
+
+""" Test function for several equal values in loop """
+
+@pytest.fixture
+def setup_same_values():
+
+    out = {}
+    out['d'] = pd.DataFrame(
+        data=[[2, 3, 2, 3, 3, -4], [3, 5, 1, 3, 2, 1]]).T
+    out['d'].columns= {'VALUE','FINLWT21'}
+
+    return out
+
+
+
+s = 0
+while d_sorted['VALUE'].iloc[i]==d_sorted['VALUE'].iloc[i+s]: 
+    
+    cum_weight += d_sorted['FINLWT21'].iloc[i+s]
+    s+=1 # s will thus have a value s.th. observation i+s is not yet included. 
+    
+d_sorted['Cum_weights'].iloc[i:i+s] = cum_weight # the end value is exlcuded! 
+d_sorted['Percentage_below'].iloc[i:i+s]= cum_weight/n
+
+

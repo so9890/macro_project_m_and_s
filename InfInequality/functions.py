@@ -4,7 +4,7 @@ Functions
 
 @author: sdobkowitz
 """
-
+import pandas as pd
 def _cum_distribution(d):
     """ Calculate cummulative distribution function.
     
@@ -15,11 +15,9 @@ def _cum_distribution(d):
     
     """
     
-    n= d['FINLWT21'].sum()
     d_sorted= d.sort_values('VALUE', na_position= 'first')
-    d_sorted['index_sorted']= range(len(d_sorted))
+    d_sorted.index= range(len(d_sorted))
     d_sorted['Cum_weights']=""
-    d_sorted['Percentage_below_equal']=""
         
     cum_weight=0.0   
     s=0
@@ -47,42 +45,42 @@ def _cum_distribution(d):
                  continue
             
         d_sorted['Cum_weights'].iloc[j:j+s] = cum_weight # the end value is exlcuded! 
-        d_sorted['Percentage_below_equal'].iloc[j:j+s]= cum_weight/n
+        #d_sorted['Percentage_below_equal'].iloc[j:j+s]= cum_weight/n
 
         if j+s == len(d_sorted):
             break
         else:
             continue
         
+    n= d['FINLWT21'].sum()    
+    d_sorted['Percentage_below_equal']= d_sorted['Cum_weights']/n
+    #also calculate the point 
+    Percentage_equal= d_sorted.groupby('VALUE').agg({'VALUE':['min'], 'FINLWT21': ['sum']})
+    Percentage_equal.columns=['VALUE','Percentage_equal']
+    d_sorted=d_sorted.merge(Percentage_equal, left_on= 'VALUE', right_on= 'VALUE', how= 'left')
+    
     return d_sorted
 
 
 #####################################################
-def _values_percentiles(n,d_sorted, value, percentile, weight, CW, Per_below, p):
-
-    start = 0
-    cum_weight = 0.0
+def _percentiles(d_sorted):
+    """ Calculate household-specific percentiles. 
     
-    for i in range(start,len(value)+1):
-    # first, while loop to assign correct weight, taking into account sum of weights of observations with the same value. 
-            cum_weight_previous = cum_weight
-            
-            s = 0
-            while value.iloc[i]==value.iloc[i+s]: 
-                
-                cum_weight += weight.iloc[i+s]
-                s+=1 # s will thus have a value s.th. observation i+s is not yet included. 
-                
-            CW.iloc[i:i+s] = cum_weight # the end value is exlcuded! 
-            Per_below.iloc[i:i+s]= cum_weight/n
-            
-   # second, if-statement to check for the relevant percentile 
-   # note that cum_weight gives the cummulative weight taking all equal observations into account
+    Follow the cummulative distribution function derived in function _cum_distribution.
+    
+    d_sorted is the data set resulting from the function _cum_distribution.
+    
+    """ 
+    
+    d_sorted['Percentile']=""
+    start = 0
    
-            if cum_weight/n < p/100 : # all observations with a value of which to observe equal or smaller values fall within the given percentile
-                percentile.iloc[i:i+s]=p
-                            
-            elif cum_weight/n >= p/100 and (1-cum_weight_previous/n)>=1-p/100: # at threshold, the second condition says that the 
+    for i in range(start,len(d_sorted)):
+   
+            if d_sorted['Percentage_below_equal'] < p/100 : # all observations with a value of which to observe equal or smaller values fall within the given percentile
+                 d_sorted['Percentile'].iloc[i]=p
+"""CONTINUE"""
+            elif d_sorted['Percentage_below_equal'].iloc[i] >= p/100 and 1-d_sorted['Percentage_below_equal'].iloc[i]+d_sorted['Percentage_equal'].iloc[i]>=1-p/100: # at threshold, the second condition says that the 
                                                                                                       # probability to observe an equal or higher income
                                                                                                       # is >= 1-p/100. This is required since the data is 
                                                                                                       # discrete. 

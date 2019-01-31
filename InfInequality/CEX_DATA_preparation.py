@@ -17,7 +17,7 @@ import pandas as pd
 import os
 import re
 
-from functions import _cum_distribtuion
+from functions import _cum_distribution
 ##############################################################################
 
 """ i) and ii) Read in data. """
@@ -89,7 +89,9 @@ d=income_12_1995
 
 """ Derive cummulative distribution function. """
 
-data_distribution = _cum_distribtuion(d)
+data_distribution = _cum_distribution(d)
+
+"""CONTINUE """
 
 def weighted_percentile(d):
     """ Calculate the percentile of each household.

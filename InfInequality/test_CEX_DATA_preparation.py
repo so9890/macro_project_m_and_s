@@ -20,11 +20,12 @@ def setup_cum_distribution():
     """ This setup is to test if same values at the end are problematic. """
     out = {}
     out['d']  = pd.DataFrame(
-        data=[[-10, 2, 3, 5, 3, -4,    7, 8.565565, 8.565565],
-              [3.6, 5, 1, 3, 2,  1, 5.44,         4,       3]],
+        data=[[-10, -10, 2, 3, 5, 3, -4,    0,   1, 1, 1,  7, 8.565564, 8.565565, 8.565565, 8.565565],
+              [  2, 3.6, 5, 1, 3, 2,  1, 5.4,   2, 2, 2,  2,        3,        4,        3,        4]],
     index=  ['VALUE', 'FINLWT21']).T
 
     return out
+
 setup = setup_cum_distribution()
 n= setup['d']['FINLWT21'].sum()
 
@@ -32,7 +33,7 @@ n= setup['d']['FINLWT21'].sum()
 def expect_cum_distribution():
     """ This setup is to test if same values at the end are problematic. """
     out = {}
-    values = [3.6, 4.6, 9.6, 12.6, 12.6, 15.6, 21.04, 28.04, 28.04]
+    values = [5.6, 5.6, 6.6, 12, 18, 18, 18, 23, 26, 26, 29, 31, 34, 45, 45, 45]
     out['d']  = pd.DataFrame(
         data=[values,
               [x / values[-1] for x in values]
@@ -43,9 +44,13 @@ def expect_cum_distribution():
     return out
 ######################################################################
 
-def test_cum_distribution(setup_cum_distribution, expect_cum_distribution):
-    calc_distribution = _cum_distribution(**setup_cum_distribution())
-    assert_frame_equal(calc_distribution['Cum_weights'], expect_cum_distribution()['d']['Cum_weights'])
+def test_cum_distribution_weights(setup_cum_distribution, expect_cum_distribution):
+    calc_distribution = _cum_distribution(**setup_cum_distribution)
+    assert_frame_equal(calc_distribution['Cum_weights'].astype(float), expect_cum_distribution['d']['Cum_weights'])
+
+def test_cum_distribution_percentage(setup_cum_distribution, expect_cum_distribution):
+    calc_distribution = _cum_distribution(**setup_cum_distribution)
+    assert_frame_equal(calc_distribution['Percentage_below_equal'].astype(float), expect_cum_distribution['d']['Percentage_below_equal'])
 
 ######################################################################
 """ The following is to debug the weighted_percentile function """

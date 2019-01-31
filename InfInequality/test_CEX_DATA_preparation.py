@@ -61,10 +61,10 @@ d_sorted['Percentage_below_equal']=""
 cum_weight=0.0   
 s=0
 number_skipped=0
-for i in range(9,len(d_sorted)): 
+for i in range(0,len(d_sorted)): 
         # if-statement to skip those observations that have 
         # had the same value as the previous one.
-        if s== 0: # note that s ==0 only in the initial round. 
+        if s== 0 and i==0: 
             number_skipped = 0
         else:
             number_skipped +=s-1
@@ -73,7 +73,7 @@ for i in range(9,len(d_sorted)):
         # This is the actual loop.
         # cum_weight_previous = cum_weight 
         s = 0
-        while j <len(d_sorted) and d_sorted['VALUE'].iloc[j]==d_sorted['VALUE'].iloc[j+s]: 
+        while  d_sorted['VALUE'].iloc[j]==d_sorted['VALUE'].iloc[j+s]: 
              
              cum_weight += d_sorted['FINLWT21'].iloc[j+s]
              s+=1 
@@ -85,11 +85,12 @@ for i in range(9,len(d_sorted)):
             
         d_sorted['Cum_weights'].iloc[j:j+s] = cum_weight # the end value is exlcuded! 
         d_sorted['Percentage_below_equal'].iloc[j:j+s]= cum_weight/n
-        #break
-        if i ==6:
-            break 
+
+        if j+s == len(d_sorted):
+            break
         else:
             continue
+
        
 ###################################################################################################    
 @pytest.fixture

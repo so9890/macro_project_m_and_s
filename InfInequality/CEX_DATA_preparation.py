@@ -17,6 +17,7 @@ import pandas as pd
 import os
 import re
 
+from functions import _cum_distribtuion
 ##############################################################################
 
 """ i) and ii) Read in data. """
@@ -86,6 +87,9 @@ else:
 
 d=income_12_1995
 
+""" Derive cummulative distribution function. """
+
+data_distribution = _cum_distribtuion(d)
 
 def weighted_percentile(d):
     """ Calculate the percentile of each household.
@@ -97,13 +101,14 @@ def weighted_percentile(d):
        All households with cumulated weights share below the threshold (p/100) 
        fall within the given percentile. 
        If the weights share is above or equal to p/100 then check whether the probability 
-    3) The code takes case of cases where several households have reported the same income. 
+    3) The code takes care of cases where several households have reported the same income.
+       Then the weighst will be added to calculate the percentile.
        
     d is the data set
 
     """
-    n= d[:100]['FINLWT21'].sum() 
-    d_sorted= d[:100].sort_values('VALUE', na_position= 'first') # this creates a copy! So changing d_sorted does not change d!!
+    n= d['FINLWT21'].sum() 
+    d_sorted= d.sort_values('VALUE', na_position= 'first') # this creates a copy! So changing d_sorted does not change d!!
     d_sorted['index_sorted']= range(len(d_sorted))
     d_sorted['Percentile']= ""
     d_sorted['Cum_weights']=""
@@ -112,12 +117,12 @@ def weighted_percentile(d):
     start = 0           # variable 'start' so not to overwright those percentiles already assigned! 
     cum_weight=0.0
     
-    for p in range(1, 10, 1):
+    for p in range(1, 5, 1):
 
         for i in range(start,len(d_sorted)+1):
         # first, while loop to assign correct weight, taking into account sum of weights of observations with the same value. 
                 cum_weight_previous = cum_weight
-""" CONTINUE CHECKING HERE """                
+                
                 s = 0
                 while d_sorted['VALUE'].iloc[i]==d_sorted['VALUE'].iloc[i+s]: 
                     

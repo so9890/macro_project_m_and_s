@@ -7,11 +7,11 @@ import pytest
 
 from functions import _cum_distribution
 from pandas.testing import assert_frame_equal, assert_series_equal
-from numpy.testing import assert_array_almost_equal  
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-""" Test weighted_percentile.
+""" Test function to derived cummulative distribution function.
 
-This test asserts that the percentiles assigned to each household are correct. 
+This test asserts that the weights and percentages assigned to each household are correct. 
 
 """
 
@@ -27,19 +27,19 @@ def setup_cum_distribution():
 
     return out
 
-setup = setup_cum_distribution()
-n= setup['d']['FINLWT21'].sum()
 
 @pytest.fixture
 def expect_cum_distribution():
     """ This setup is to test if same values at the end are problematic. """
     out = {}
     values = [5.6, 5.6, 6.6, 12.0, 18.0, 18.0, 18.0, 23.0, 26.0, 26.0, 29.0, 31.0, 34.0, 45.0, 45.0, 45.0]
+    number_equal_obs = [5.6, 5.6, 1.0, 5.4, 6.0 , 6.0, 6.0, 5.0, 3.0, 3.0, 3.0, 2.0, 3.0, 11.0, 11.0, 11.0 ]
     out['d']  = pd.DataFrame(
         data=[values,
-              [x / values[-1] for x in values]
+              [x / values[-1] for x in values],
+              [x/ values[-1] for x in number_equal_obs]
               ],
-        index= ['Cum_weights', 'Percentage_below_equal']
+        index= ['Cum_weights', 'Percentage_below_equal', 'Percentage_equal']
         ).T
     
     return out
@@ -47,15 +47,28 @@ def expect_cum_distribution():
 
 def test_cum_distribution_weights(setup_cum_distribution, expect_cum_distribution):
     calc_distribution = _cum_distribution(**setup_cum_distribution)
-    assert_array_almost_equal(calc_distribution['Cum_weights'].values, expect_cum_distribution['d']['Cum_weights'].values)
+    assert_array_equal(calc_distribution['Cum_weights'].values, expect_cum_distribution['d']['Cum_weights'].values)
 
 def test_cum_distribution_percentage(setup_cum_distribution, expect_cum_distribution):
     calc_distribution = _cum_distribution(**setup_cum_distribution)
-    assert_array_almost_equal(calc_distribution['Percentage_below_equal'].values, expect_cum_distribution['d']['Percentage_below_equal'].values)
+    assert_array_equal(calc_distribution['Percentage_below_equal'].values, expect_cum_distribution['d']['Percentage_below_equal'].values)
 
-
+def test_cum_distribution_point(setup_cum_distribution, expect_cum_distribution):
+    calc_distribution = _cum_distribution(**setup_cum_distribution)
+    assert_array_equal(calc_distribution['Percentage_equal'].values, expect_cum_distribution['d']['Percentage_equal'].values)
+    
 ######################################################################
-""" The following is to debug the weighted_percentile function """
+    
+    
+    
+    
+    
+    
+""" The following is to debug the weighted_percentile function.
+
+Note that the version below does not give the sum of weights for a given income.
+
+ """
 
 setup = setup_cum_distribution()
 d=setup['d']

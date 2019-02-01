@@ -4,7 +4,7 @@ Functions
 
 @author: sdobkowitz
 """
-import pandas as pd
+
 def _cum_distribution(d):
     """ Calculate cummulative distribution function.
     
@@ -55,14 +55,16 @@ def _cum_distribution(d):
     n= d['FINLWT21'].sum()    
     d_sorted['Percentage_below_equal']= d_sorted['Cum_weights']/n
     #also calculate the point 
-    Percentage_equal= d_sorted.groupby('VALUE').agg({'VALUE':['min'], 'FINLWT21': ['sum']})
-    Percentage_equal.columns=['VALUE','Percentage_equal']
-    d_sorted=d_sorted.merge(Percentage_equal, left_on= 'VALUE', right_on= 'VALUE', how= 'left')
+    Observations_equal= d_sorted.groupby('VALUE').agg({'VALUE':['min'], 'FINLWT21': ['sum']})
+    Observations_equal.columns=['VALUE','Percentage_equal']
+    Observations_equal['Percentage_equal']= Observations_equal['Percentage_equal']/n
+    d_sorted=d_sorted.merge(Observations_equal, left_on= 'VALUE', right_on= 'VALUE', how= 'left')
     
     return d_sorted
 
 
-#####################################################
+###############################################################################
+    
 def _percentiles(d_sorted):
     """ Calculate household-specific percentiles. 
     
@@ -73,30 +75,32 @@ def _percentiles(d_sorted):
     """ 
     
     d_sorted['Percentile']=""
-    start = 0
+    start=0
+    
+    for p in range(1,101, 1):
+        
+        for i in range(start,len(d_sorted)):
    
-    for i in range(start,len(d_sorted)):
-   
-            if d_sorted['Percentage_below_equal'] < p/100 : # all observations with a value of which to observe equal or smaller values fall within the given percentile
-                 d_sorted['Percentile'].iloc[i]=p
-"""CONTINUE"""
-            elif d_sorted['Percentage_below_equal'].iloc[i] >= p/100 and 1-d_sorted['Percentage_below_equal'].iloc[i]+d_sorted['Percentage_equal'].iloc[i]>=1-p/100: # at threshold, the second condition says that the 
-                                                                                                      # probability to observe an equal or higher income
-                                                                                                      # is >= 1-p/100. This is required since the data is 
-                                                                                                      # discrete. 
-                percentile.iloc[i:i+s]=p
+            if d_sorted['Percentage_below_equal'].iloc[i] < p/100 : 
+                # all observations with a probability to observe equal or 
+                # smaller values lower then p/100 fall within the given percentile
+                d_sorted['Percentile'].iloc[i]=p
+
+            elif d_sorted['Percentage_below_equal'].iloc[i] >= p/100 and 1-d_sorted['Percentage_below_equal'].iloc[i]+d_sorted['Percentage_equal'].iloc[i]>=1-p/100: 
+                # at threshold, the second condition says that the 
+                # probability to observe an equal or higher income
+                # is >= 1-p/100. This is required since the data is 
+                # discrete. 
+                d_sorted['Percentile'].iloc[i]=p
             
             else: 
-                start = (i)   # since at the point of the break i+s is the index of the first observation that 
-                                  # has not yet been assigned a percentile 
-                                  # this is from where the operation has to start from for the next percentile.
-    
-                cum_weight=CW.iloc[(i-1)]      # the loop stops, ie. income of household i, has already been added
-                                                                      # we have to ensure that the next loop starts from 
-                                                                      # the previous cumulative value! Otherwise weight 
-                                                                      # added twice!
+                # since at the point of the break i is the index of the first observation that 
+                # has not yet been assigned a percentile 
+                # this is from where the operation has to start for the next percentile.
+                start = i
+
                 break
+            #break
+        print('percentile', p, 'done!')
 
-    print('percentile', p, 'done!')
-
-    return 
+    return d_sorted 

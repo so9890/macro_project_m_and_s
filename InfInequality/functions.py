@@ -1,8 +1,10 @@
 
-"""
-Functions
+""" Functions.
 
-@author: sdobkowitz
+    1) Functions to derive income percentiles. Used in CEX_DATA_percentiles.py
+    2) Functions used in CEX_DATA_expenditures.py
+
+
 """
 
 def weights_percentiles(d):

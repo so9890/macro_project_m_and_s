@@ -5,11 +5,28 @@ Functions
 @author: sdobkowitz
 """
 
+def weights_percentiles(d):
+    """ Calculate the percentile of each household.
+    
+    1) Sum up weights grouped by income value.
+    2) Derive cummulative distribution and probibility distribution functions.
+    3) Assign percentiles to each household.
+            
+    d is the data set
+
+    """
+    d_distribution = _cum_distribution(d)
+    d_sorted = _percentiles(d_distribution)
+    
+    return d_sorted
+
+
+###############################################################################
 def _cum_distribution(d):
     """ Calculate cummulative distribution function.
     
-    Returns sorted data set with cummulative weights and the cummulative 
-    distribution function.
+    Return sorted data set with cummulative weights and the cummulative 
+    distribution function and probability distribution.
     
     d= data set containing samplingt weights and income for a given month-year
     
@@ -54,11 +71,13 @@ def _cum_distribution(d):
         
     n= d['FINLWT21'].sum()    
     d_sorted['Percentage_below_equal']= d_sorted['Cum_weights']/n
-    #also calculate the point 
+    
+    #also calculate probability distribution and the probability to observe an income equal or bigger
     Observations_equal= d_sorted.groupby('VALUE').agg({'VALUE':['min'], 'FINLWT21': ['sum']})
     Observations_equal.columns=['VALUE','Percentage_equal']
     Observations_equal['Percentage_equal']= Observations_equal['Percentage_equal']/n
     d_sorted=d_sorted.merge(Observations_equal, left_on= 'VALUE', right_on= 'VALUE', how= 'left')
+    d_sorted['Percentage_equal_above']= 1- d_sorted['Percentage_below_equal'] + d_sorted['Percentage_equal']
     
     return d_sorted
 
@@ -68,9 +87,9 @@ def _cum_distribution(d):
 def _percentiles(d_sorted):
     """ Calculate household-specific percentiles. 
     
-    Follow the cummulative distribution function derived in function _cum_distribution.
+    Follow the distribution functions derived in function _cum_distribution.
     
-    d_sorted is the data set resulting from the function _cum_distribution.
+    d is the data set resulting from the function _cum_distribution.
     
     """ 
     
@@ -86,7 +105,7 @@ def _percentiles(d_sorted):
                 # smaller values lower then p/100 fall within the given percentile
                 d_sorted['Percentile'].iloc[i]=p
 
-            elif d_sorted['Percentage_below_equal'].iloc[i] >= p/100 and 1-d_sorted['Percentage_below_equal'].iloc[i]+d_sorted['Percentage_equal'].iloc[i]>=1-p/100: 
+            elif d_sorted['Percentage_below_equal'].iloc[i] >= p/100 and d_sorted['Percentage_equal_above'].iloc[i]>=1-p/100: 
                 # at threshold, the second condition says that the 
                 # probability to observe an equal or higher income
                 # is >= 1-p/100. This is required since the data is 
@@ -101,6 +120,10 @@ def _percentiles(d_sorted):
 
                 break
             #break
-        print('percentile', p, 'done!')
+        print('Percentile', p, 'done!')
 
-    return d_sorted 
+    return d_sorted
+
+
+###############################################################################
+    

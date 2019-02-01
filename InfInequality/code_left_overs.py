@@ -34,3 +34,52 @@ data=data.merge(helperI[['Code Value','Code Description']], left_on= 'UCC', righ
 
 #match_NEWID= data[data['NEWID']==657965]
 
+    
+""" The following is to debug the weighted_percentile function.
+
+Note that the version below does not give the sum of weights for a given income.
+
+ """
+
+setup = setup_fun()
+d=setup['d']
+n= d['FINLWT21'].sum()
+d_sorted= d.sort_values('VALUE', na_position= 'first')
+d_sorted['index_sorted']= range(len(d_sorted))
+d_sorted['Cum_weights']=""
+d_sorted['Percentage_below_equal']=""
+    
+cum_weight=0.0   
+s=0
+number_skipped=0
+for i in range(0,len(d_sorted)): 
+        # if-statement to skip those observations that have 
+        # had the same value as the previous one.
+        if s== 0 and i==0: 
+            number_skipped = 0
+        else:
+            number_skipped +=s-1
+        j= i+number_skipped
+
+        # This is the actual loop.
+        # cum_weight_previous = cum_weight 
+        s = 0
+        while  d_sorted['VALUE'].iloc[j]==d_sorted['VALUE'].iloc[j+s]: 
+             
+             cum_weight += d_sorted['FINLWT21'].iloc[j+s]
+             s+=1 
+             
+             if j+s==len(d_sorted): # if so, the next value to be tested would be out of range.
+                 break
+             else:
+                 continue
+            
+        d_sorted['Cum_weights'].iloc[j:j+s] = cum_weight # the end value is exlcuded! 
+        d_sorted['Percentage_below_equal'].iloc[j:j+s]= cum_weight/n
+
+        if j+s == len(d_sorted):
+            break
+        else:
+            continue
+
+       

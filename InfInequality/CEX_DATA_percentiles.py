@@ -86,7 +86,7 @@ d=income_12_1995
 d_percentiles = weights_percentiles(d)
 d_percentiles_12_1995 = d_percentiles[['NEWID','FINLWT21', 'Percentile']]
 
-#np.savetxt('d_percentiles_12_1995.csv', d_percentiles_12_1995, delimiter=',')
+""" Save files. """ 
 d_percentiles_12_1995.to_pickle('../../data/Percentiles/12_1995')
 
 

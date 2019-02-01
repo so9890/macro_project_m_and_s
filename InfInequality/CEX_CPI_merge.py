@@ -1,2 +1,2 @@
-""" This file is to bring Consumption shares and price data together. """
+""" This file is to bring consumption shares and price data together. """
 

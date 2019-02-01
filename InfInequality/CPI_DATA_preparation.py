@@ -1,7 +1,6 @@
 """ Preparing CPI data """
 
 import pandas as pd
-import numpy as np
 
 #------------------------------------------------------------------------
 ## Create a list for the different excel files containing CI data
@@ -22,10 +21,10 @@ file_names =['food_and_beverages',
 ## Merge Datasets
 #------------------------------------------------------------------------
 
-data = pd.read_excel('../data/CPI_Data/food_and_beverages.xlsx')
+data = pd.read_excel('../../data/CPI_Data/food_and_beverages.xlsx')
 
 for i in file_names[1:]:  
-    data_helper = pd.read_excel('../data/CPI_Data/'+ str(i) +'.xlsx')
+    data_helper = pd.read_excel('../../data/CPI_Data/'+ str(i) +'.xlsx')
     ## ensure same column names
     data_helper.columns= data.columns
     data = pd.concat([data, data_helper], sort= False)
@@ -64,11 +63,12 @@ data_quarterly=data.groupby(['series_id', 'year', 'quarter'], as_index = False).
 ## read in series identifier data only if in series_id of current dataset
 #------------------------------------------------------------------------
 
-series_id = pd.DataFrame(data=data.T.loc['series_id']).drop_duplicates(subset='series_id')
+#series_id = pd.DataFrame(data=data['series_id']).drop_duplicates(subset='series_id')
 # also check for unique years
-unique_years =pd.DataFrame(data=data.T.loc['year']).drop_duplicates(subset='year')
+#unique_years =pd.DataFrame(data=data['year']).drop_duplicates(subset='year')
 
 #------------------------------------------------------------------------
-## calculate inflation rates:
-# this step needs to filter out variables that are in the CEX data
-#------------------------------------------------------------------------ 
+## save files
+#------------------------------------------------------------------------
+
+data.to_pickle('../../data/CPI_quarterly/??')

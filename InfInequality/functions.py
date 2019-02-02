@@ -2,10 +2,12 @@
 """ Functions.
 
     1) Functions to derive income percentiles. Used in CEX_DATA_percentiles.py
-    2) Functions used in CEX_DATA_expenditures.py
+    2) Function to assign quarters and collapse price data on quarterly level in CPI_DATA_preparation.py 
 
 
 """
+###############################################################################
+""" 1) """
 
 def weights_percentiles(d):
     """ Calculate the percentile of each household.
@@ -128,4 +130,26 @@ def _percentiles(d_sorted):
 
 
 ###############################################################################
+    
+""" 2) """
+    
+def _quarter_collapse(data):
+    """ Identify quarter of observation and collapse on quarterly level. 
+    
+    Use the quarterly mean of the CPI value when collapsing data set.
+    
+    data is the input data. 
+    
+    """
+    for j in range(0,10,3):
+        for i in range(1+j,4+j,1):
+            if i <10:
+                data.loc[data['period'].str.contains('0'+str(i)), 'quarter'] = 1+j/3
+            else:
+                data.loc[data['period'].str.contains(str(i)), 'quarter'] = 1+j/3
+
+    # collapse dataset on series_id, year and quarter level
+    data_q=data.groupby(['series_id', 'year', 'quarter', 'item_id'], as_index = False).agg({'value': 'mean'})
+    
+    return data_q
     

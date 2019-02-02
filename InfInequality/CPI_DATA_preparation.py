@@ -1,7 +1,8 @@
 """ Preparing CPI data """
 
 import pandas as pd
-
+import re
+from functions import _quarter_collapse
 #------------------------------------------------------------------------
 ## Create a list for the different excel files containing CI data
 #------------------------------------------------------------------------
@@ -32,43 +33,124 @@ for i in file_names[1:]:
 del data_helper
 
 #------------------------------------------------------------------------
-## Now apply correction for year variable which contains part of
-## the series_id
+## Apply correction for year variable which contains part of
+## the series_id. 
+## Ensure all columns have same type of entries. In variable year there are different types.
+## That leads to errors when collapsing the data set.
 #------------------------------------------------------------------------
 
-additional_column =  (data.T.loc['year']).str.split(expand=True)
+additional_column =  (data.year).str.split(expand=True)
 additional_column.columns=['suffix', 'year']
-data.loc[:,'series_id'] = ( pd.Series(data.T.loc['series_id']).str.
-                            cat(additional_column.T.loc['suffix'], sep='', na_rep=' '))
+data['series_id'] = ( pd.Series(data.series_id).str.
+                            cat(additional_column.suffix, sep='', na_rep=' '))
 
-boolean_isnan = pd.isna(pd.Series(additional_column.T.loc['year']))
-data.loc[:,'year'][boolean_isnan == False] = additional_column.loc[:,'year']
+boolean_isnan = pd.isna(pd.Series(additional_column.year))
+data.year[boolean_isnan == False] = additional_column.year
+
+#------------------------------------------------------------------------
+## Code variable year as int! Otherwise not recognised as equal years. 
+## Ensure all other variables are also of one type.
+#------------------------------------------------------------------------
+
+data.year= data.year.astype(int)
+data.series_id=data.series_id.astype(str)
+data.value= data.value.astype(float)
+
+#------------------------------------------------------------------------
+## Only keep US city average prices, ie area_code==0000
+#------------------------------------------------------------------------
+
+data=data[ data['series_id'].str.contains('0000')]
+
+#------------------------------------------------------------------------
+## In the data files 'series_id' contains the item_code as the last part of the 
+## string. Before the item code there is the area code which consists of four 
+## numbers and before it there are four letters.
+## The item_code thus begins afterthe four numerical entries in the 
+## series_id. 
+## Use a series of unique series_id and merge afterwards to it speed up.
+#------------------------------------------------------------------------
+
+unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
+regexI= re.compile('[0]{4}')
+unique_SID['item_id']= ""
+
+for i in range(0,len(unique_SID)):
+    t=regexI.split(unique_SID['series_id'].iloc[i])
+    unique_SID['item_id'].iloc[i]=t[1].strip()
+
+
+data=data.merge(unique_SID, left_on= 'series_id', right_on= 'series_id', how= 'left')
+
+#------------------------------------------------------------------------
+## Check for missing values in year variable:print.
+#------------------------------------------------------------------------
+
+print('Are there missing year values in the data set?', pd.isna(data.year).unique())
+
+# print number of years
+p = pd.DataFrame(data=data.year.unique(), columns=['year']).sort_values('year',
+                na_position= 'first')
+
+print('There are', len(p), 'different years in the price data set.')
 
 #------------------------------------------------------------------------
 ## Aggregate price data on quarterly level using the mean of the 3 months
 #------------------------------------------------------------------------
 
-# create variable for quarter
-for j in range(0,10,3):
-    for i in range(1+j,4+j,1):
-        if i <10:
-            data.loc[data['period'].str.contains('0'+str(i)), 'quarter'] = 1+j/3
-        else:
-            data.loc[data['period'].str.contains(str(i)), 'quarter'] = 1+j/3
+data_q= _quarter_collapse(data)
 
-# collapse dataset on series_id, year and quarter level
-data_quarterly=data.groupby(['series_id', 'year', 'quarter'], as_index = False).agg({"value": 'mean'})
+###############################################################################
 
+""" Derive Concordance with CEX data, ie. UCC. """
 #------------------------------------------------------------------------
-## read in series identifier data only if in series_id of current dataset
+## Read in and clean series identifier, merge it to data sets.
 #------------------------------------------------------------------------
 
-#series_id = pd.DataFrame(data=data['series_id']).drop_duplicates(subset='series_id')
-# also check for unique years
-#unique_years =pd.DataFrame(data=data['year']).drop_duplicates(subset='year')
+series_id = pd.read_excel('../../data/CPI_Data/item_encoding_II.xlsx')
+series_id.columns=['item_id', 'else_else']
 
+# The second column contains first the item description followed by a number
+# and additional things. Only filter the description before the first number. 
+
+regex= re.compile('[0-9]+')
+series_id['Description']=""
+
+for i in range(0,len(series_id)):
+    series_id['Description'].iloc[i]=regex.split(series_id.else_else.iloc[i])[0]
+
+series_id = series_id[['item_id','Description']]
+
+# Merge series_id item_code and data/data_q 'series_id' to check whether extraction worked. 
+
+data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
+
+#------------------------------------------------------------------------
+## Read in Nakamura-Steinson (NS) ELI Concordance file. 
+#------------------------------------------------------------------------
+
+concordance = pd.read_excel('../../data/ELIconcordance_NS_elusiveCostofInflation.xls', sheet_name=2, names= ['UCC','ELI_id', 'Description'], usecols= "A:C")
+
+# The NS data set contains ELI_id. Since our price data is on item_stratum level
+# we have to aggregate the identifier but keep the UCC code unchanged for now.
+# The hierarchie in the CPI is such that the ELI_code consits of the item-stratum
+# code as the four first digits and is then followed by additional identifiers.
+# We thus have to filter out the first four digits.
+
+concordance['item_id']=""
+for i in range(0,len(concordance)):
+    concordance['item_id'].iloc[i]=concordance.ELI_id.iloc[i][:4]
+
+"""Continue"""
 #------------------------------------------------------------------------
 ## save files
 #------------------------------------------------------------------------
 
-data.to_pickle('../../data/CPI_quarterly/CPI_q')
+data_q.to_pickle('../../data/CPI_prepared/CPI_q')
+data.to_pickle('../../data/CPI_prepared/CPI_m')
+
+
+
+
+
+

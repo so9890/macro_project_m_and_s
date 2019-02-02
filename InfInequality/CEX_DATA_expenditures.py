@@ -36,13 +36,12 @@ data_12_1995['Weighted_exp']= data_12_1995['COST']*data_12_1995['FINLWT21']
 
 """ Summing up expenditures by Percentile and UCC """
 
-exp_data_12_1995= data_12_1995.groupby(['Percentile','UCC'], as_index=False).agg({'Weighted_exp':['sum']})
-exp_data_12_1995.columns = ['Percentile', 'UCC', 'Expenditures']
+exp_data_12_1995= data_12_1995.groupby(['Percentile','UCC'], as_index=False).agg({'Weighted_exp':'sum'})
 
 
 """  Total expenditures by percentile"""
 
-exp_data_12_1995_total =exp_data_12_1995.groupby(['Percentile'], as_index=False).agg({'Expenditures':['sum']})
+exp_data_12_1995_total =exp_data_12_1995.groupby(['Percentile'], as_index=False).agg({'Weighted_exp':'sum'})
 exp_data_12_1995_total.columns=['Percentile', 'Total_expenditures']
 
 exp_data_12_1995=exp_data_12_1995.merge(exp_data_12_1995_total, left_on= 'Percentile', right_on= 'Percentile', how= 'left')

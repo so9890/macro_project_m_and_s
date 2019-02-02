@@ -4,7 +4,7 @@
     And a file containing CPI data on quarterly level. 
 """
 import pandas as pd
-impot numpy as np
+import numpy as np
 
 #------------------------------------------------------------------------
 ## Read in Data.
@@ -18,3 +18,4 @@ d_CPI = pd.read_pickle('../../data/CPI_quarterly/CPI_q')
 #------------------------------------------------------------------------
 
 f=pd.Series(d_exp_12_1995.UCC.unique()).sort_values( na_position= 'first')
+g = pd.Series(d_CPI.unique()).sort_values( na_position= 'first')

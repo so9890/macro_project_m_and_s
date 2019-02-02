@@ -71,4 +71,4 @@ data_quarterly=data.groupby(['series_id', 'year', 'quarter'], as_index = False).
 ## save files
 #------------------------------------------------------------------------
 
-data.to_pickle('../../data/CPI_quarterly/??')
+data.to_pickle('../../data/CPI_quarterly/CPI_q')

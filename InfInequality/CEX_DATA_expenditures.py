@@ -47,8 +47,10 @@ exp_data_12_1995_total.columns=['Percentile', 'Total_expenditures']
 
 exp_data_12_1995=exp_data_12_1995.merge(exp_data_12_1995_total, left_on= 'Percentile', right_on= 'Percentile', how= 'left')
 
-""" Calculate shares on UCC-Percentile level. """
+""" Calculate shares on UCC-Percentile level and save data set. """
 
    
 exp_data_12_1995['Share'] =pd.Series(data=exp_data_12_1995['Expenditures'].values/exp_data_12_1995['Total_expenditures'].values)
-                            
+                           
+exp_data_12_1995=exp_data_12_1995[['Percentile', 'UCC', 'Share']]
+exp_data_12_1995.to_pickle('../../data/shares/12_1995')

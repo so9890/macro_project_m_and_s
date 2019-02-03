@@ -22,10 +22,10 @@ file_names =['food_and_beverages',
 ## Merge Datasets
 #------------------------------------------------------------------------
 
-data = pd.read_excel('../../data/CPI_Data/food_and_beverages.xlsx')
+data = pd.read_excel('../../original_data/CPI_Data/food_and_beverages.xlsx')
 
 for i in file_names[1:]:  
-    data_helper = pd.read_excel('../../data/CPI_Data/'+ str(i) +'.xlsx')
+    data_helper = pd.read_excel('../../original_data/CPI_Data/'+ str(i) +'.xlsx')
     ## ensure same column names
     data_helper.columns= data.columns
     data = pd.concat([data, data_helper], sort= False)
@@ -64,11 +64,10 @@ data=data[ data['series_id'].str.contains('0000')]
 
 #------------------------------------------------------------------------
 ## In the data files 'series_id' contains the item_code as the last part of the 
-## string. Before the item code there is the area code which consists of four 
-## numbers and before it there are four letters.
-## The item_code thus begins afterthe four numerical entries in the 
-## series_id. 
-## Use a series of unique series_id and merge afterwards to it speed up.
+## string. Before the item code, there is the area code which consists of four 
+## numbers and before it there are four letters. We ensured there is only
+## the area code with '0000' in the data set.
+## Use a series of unique series_id and merge afterwards to speed it up.
 #------------------------------------------------------------------------
 
 unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
@@ -94,11 +93,6 @@ p = pd.DataFrame(data=data.year.unique(), columns=['year']).sort_values('year',
 
 print('There are', len(p), 'different years in the price data set.')
 
-#------------------------------------------------------------------------
-## Aggregate price data on quarterly level using the mean of the 3 months
-#------------------------------------------------------------------------
-
-data_q= _quarter_collapse(data)
 
 ###############################################################################
 
@@ -107,7 +101,7 @@ data_q= _quarter_collapse(data)
 ## Read in and clean series identifier, merge it to data sets.
 #------------------------------------------------------------------------
 
-series_id = pd.read_excel('../../data/CPI_Data/item_encoding_II.xlsx')
+series_id = pd.read_excel('../../original_data/CPI_Data/item_encoding_II.xlsx')
 series_id.columns=['item_id', 'else_else']
 
 # The second column contains first the item description followed by a number
@@ -125,11 +119,13 @@ series_id = series_id[['item_id','Description']]
 
 data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
 
+
 #------------------------------------------------------------------------
 ## Read in Nakamura-Steinson (NS) ELI Concordance file. 
 #------------------------------------------------------------------------
 
-concordance = pd.read_excel('../../data/ELIconcordance_NS_elusiveCostofInflation.xls', sheet_name=2, names= ['UCC','ELI_id', 'Description'], usecols= "A:C")
+concordance = pd.read_excel('../../original_data/ELIconcordance_NS_elusiveCostofInflation.xls', sheet_name=2, names= ['UCC','ELI_id', 'Description'], usecols= "A:C")
+
 
 # The NS data set contains ELI_id. Since our price data is on item_stratum level
 # we have to aggregate the identifier but keep the UCC code unchanged for now.
@@ -141,7 +137,12 @@ concordance['item_id']=""
 for i in range(0,len(concordance)):
     concordance['item_id'].iloc[i]=concordance.ELI_id.iloc[i][:4]
 
-"""Continue"""
+
+#------------------------------------------------------------------------
+## Aggregate price data on quarterly level using the mean of the 3 months
+#------------------------------------------------------------------------
+
+data_q= _quarter_collapse(data)
 #------------------------------------------------------------------------
 ## save files
 #------------------------------------------------------------------------

@@ -10,8 +10,8 @@ import numpy as np
 ## Read in Data.
 #------------------------------------------------------------------------
 
-d_exp_12_1995 = pd.read_pickle('../../data/shares/12_1995')
-d_CPI = pd.read_pickle('../../data/CPI_quarterly/CPI_q')
+d_exp_12_1995 = pd.read_pickle('../../original_data/shares/12_1995')
+d_CPI = pd.read_pickle('../../original_data/CPI_quarterly/CPI_q')
 
 #------------------------------------------------------------------------
 ## Concordance between UCC and CPI series-id.

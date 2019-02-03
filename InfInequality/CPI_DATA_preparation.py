@@ -119,6 +119,16 @@ series_id = series_id[['item_id','Description']]
 
 data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
 
+#------------------------------------------------------------------------
+## Only keep data for years from 1996 onwards. CEX data at the moment not 
+## available for earlier years.  
+#------------------------------------------------------------------------
+
+data = data[data.year.astype(int).isin(range(1996,2018,1))]
+# for printing
+series_new= data[['item_id', 'Description']]
+series_new= series_new.drop_duplicates('item_id').sort_values('item_id')
+# the above series only has 6 items less... don't bother printing new list. 
 
 #------------------------------------------------------------------------
 ## Read in Nakamura-Steinson (NS) ELI Concordance file. 
@@ -136,7 +146,15 @@ concordance = pd.read_excel('../../original_data/ELIconcordance_NS_elusiveCostof
 concordance['item_id']=""
 for i in range(0,len(concordance)):
     concordance['item_id'].iloc[i]=concordance.ELI_id.iloc[i][:4]
+concordance= concordance.sort_values('UCC')
 
+#------------------------------------------------------------------------
+## Print item_id and descriptions from CPI data set, from the concordance and 
+## from the expenditure data set.
+#------------------------------------------------------------------------
+
+series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
+concordance.to_excel('../../original_data/tb_printed/tb_printed_NS_codes.xlsx')
 
 #------------------------------------------------------------------------
 ## Aggregate price data on quarterly level using the mean of the 3 months

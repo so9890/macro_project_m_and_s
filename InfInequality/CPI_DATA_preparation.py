@@ -3,6 +3,7 @@
 import pandas as pd
 import re
 from functions import _quarter_collapse
+
 #------------------------------------------------------------------------
 ## Create a list for the different excel files containing CI data
 #------------------------------------------------------------------------
@@ -68,18 +69,30 @@ data=data[ data['series_id'].str.contains('0000')]
 ## numbers and before it there are four letters. We ensured there is only
 ## the area code with '0000' in the data set.
 ## Use a series of unique series_id and merge afterwards to speed it up.
+## Also save away a column of ids that can be used to merge to the concor-
+## dance file.
 #------------------------------------------------------------------------
 
 unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
 regexI= re.compile('[0]{4}')
 unique_SID['item_id']= ""
 
+regexIII =re.compile('^SE{1}?|^SS{1}')
+unique_SID['concordance_id']=""
+
 for i in range(0,len(unique_SID)):
     t=regexI.split(unique_SID['series_id'].iloc[i])
     unique_SID['item_id'].iloc[i]=t[1].strip()
-
-
+    
+    if len(regexIII.split(unique_SID['item_id'].iloc[i]))>1:
+        unique_SID['concordance_id'].iloc[i]=regexIII.split(unique_SID['item_id'].iloc[i])[1]
+    else:
+         unique_SID['concordance_id'].iloc[i]=""
+         
+        
 data=data.merge(unique_SID, left_on= 'series_id', right_on= 'series_id', how= 'left')
+# there is no missing item_id in the data, there are 393 item of which 
+#some will be dropped as they are too broad categories. 
 
 #------------------------------------------------------------------------
 ## Check for missing values in year variable:print.
@@ -104,20 +117,33 @@ print('There are', len(p), 'different years in the price data set.')
 series_id = pd.read_excel('../../original_data/CPI_Data/item_encoding_II.xlsx')
 series_id.columns=['item_id', 'else_else']
 
-# The second column contains first the item description followed by a number
-# and additional things. Only filter the description before the first number. 
+# 1) The second column contains first the item description followed by a number
+# and additional things. Only filter the description before the first number.
+# 2) On top, drop too broad categories starting with SA 
 
 regex= re.compile('[0-9]+')
 series_id['Description']=""
 
+regexII= re.compile('^SA{1}') ?????
+series_id['Boolean']=""
+
+
 for i in range(0,len(series_id)):
     series_id['Description'].iloc[i]=regex.split(series_id.else_else.iloc[i])[0]
-
-series_id = series_id[['item_id','Description']]
+    
+    if re.search('^SA{1}', series_id.item_id.iloc[i]):
+        series_id['Boolean'].iloc[i]=False
+        
+    else:
+       series_id['Boolean'].iloc[i]=True
+       
+series_id = series_id[['item_id','Description', 'Boolean']]
 
 # Merge series_id item_code and data/data_q 'series_id' to check whether extraction worked. 
 
 data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
+""" MIGHT BE ABLE TO SPEAD THIS UP AND CODE DIRECTLY"""
+data = data[data.Boolean]
 
 #------------------------------------------------------------------------
 ## Only keep data for years from 1996 onwards. CEX data at the moment not 
@@ -131,32 +157,6 @@ series_new= series_new.drop_duplicates('item_id').sort_values('item_id')
 # the above series only has 6 items less... don't bother printing new list. 
 
 #------------------------------------------------------------------------
-## Read in Nakamura-Steinson (NS) ELI Concordance file. 
-#------------------------------------------------------------------------
-
-concordance = pd.read_excel('../../original_data/ELIconcordance_NS_elusiveCostofInflation.xls', sheet_name=2, names= ['UCC','ELI_id', 'Description'], usecols= "A:C")
-
-
-# The NS data set contains ELI_id. Since our price data is on item_stratum level
-# we have to aggregate the identifier but keep the UCC code unchanged for now.
-# The hierarchie in the CPI is such that the ELI_code consits of the item-stratum
-# code as the four first digits and is then followed by additional identifiers.
-# We thus have to filter out the first four digits.
-
-concordance['item_id']=""
-for i in range(0,len(concordance)):
-    concordance['item_id'].iloc[i]=concordance.ELI_id.iloc[i][:4]
-concordance= concordance.sort_values('UCC')
-
-#------------------------------------------------------------------------
-## Print item_id and descriptions from CPI data set, from the concordance and 
-## from the expenditure data set.
-#------------------------------------------------------------------------
-
-series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
-concordance.to_excel('../../original_data/tb_printed/tb_printed_NS_codes.xlsx')
-
-#------------------------------------------------------------------------
 ## Aggregate price data on quarterly level using the mean of the 3 months
 #------------------------------------------------------------------------
 
@@ -165,8 +165,35 @@ data_q= _quarter_collapse(data)
 ## save files
 #------------------------------------------------------------------------
 
-data_q.to_pickle('../../data/CPI_prepared/CPI_q')
-data.to_pickle('../../data/CPI_prepared/CPI_m')
+data_q.to_pickle('../../original_data/CPI_prepared/CPI_q')
+data.to_pickle('../../original_data/CPI_prepared/CPI_m')
+
+
+#------------------------------------------------------------------------
+## Print item_id and descriptions from CPI data set, from the concordance and 
+## from the expenditure data set.
+#------------------------------------------------------------------------
+
+series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -149,7 +149,7 @@ def _quarter_collapse(data):
                 data.loc[data['period'].str.contains(str(i)), 'quarter'] = 1+j/3
 
     # collapse dataset on series_id, year and quarter level
-    data_q=data.groupby(['series_id', 'year', 'quarter', 'item_id', 'Description'], as_index = False).agg({'value': 'mean'})
+    data_q=data.groupby(['series_id', 'year', 'quarter', 'item_id', 'Description', 'concordance_id'], as_index = False).agg({'value': 'mean'})
     
     return data_q
     

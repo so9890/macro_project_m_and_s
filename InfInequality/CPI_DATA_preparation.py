@@ -2,7 +2,6 @@
 
 import pandas as pd
 import re
-from functions import _quarter_collapse
 
 #------------------------------------------------------------------------
 ## Create a list for the different excel files containing CI data
@@ -124,7 +123,6 @@ series_id.columns=['item_id', 'else_else']
 regex= re.compile('[0-9]+')
 series_id['Description']=""
 
-regexII= re.compile('^SA{1}') ?????
 series_id['Boolean']=""
 
 
@@ -142,7 +140,7 @@ series_id = series_id[['item_id','Description', 'Boolean']]
 # Merge series_id item_code and data/data_q 'series_id' to check whether extraction worked. 
 
 data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
-""" MIGHT BE ABLE TO SPEAD THIS UP AND CODE DIRECTLY"""
+
 data = data[data.Boolean]
 
 #------------------------------------------------------------------------
@@ -151,31 +149,19 @@ data = data[data.Boolean]
 #------------------------------------------------------------------------
 
 data = data[data.year.astype(int).isin(range(1996,2018,1))]
+data.to_pickle('../../original_data/CPI_prepared/CPI_for_con')
+
+
+""" Clean this up later when ensured not needed anymore """
 # for printing
-series_new= data[['item_id', 'Description']]
-series_new= series_new.drop_duplicates('item_id').sort_values('item_id')
+#series_new= data[['item_id', 'Description']]
+#series_new= series_new.drop_duplicates('item_id').sort_values('item_id')
 # the above series only has 6 items less... don't bother printing new list. 
-
 #------------------------------------------------------------------------
-## Aggregate price data on quarterly level using the mean of the 3 months
-#------------------------------------------------------------------------
-
-data_q= _quarter_collapse(data)
-#------------------------------------------------------------------------
-## save files
+## Save CPI_ITem
 #------------------------------------------------------------------------
 
-data_q.to_pickle('../../original_data/CPI_prepared/CPI_q')
-data.to_pickle('../../original_data/CPI_prepared/CPI_m')
-
-
-#------------------------------------------------------------------------
-## Print item_id and descriptions from CPI data set, from the concordance and 
-## from the expenditure data set.
-#------------------------------------------------------------------------
-
-series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
-
+#series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
 
 
 

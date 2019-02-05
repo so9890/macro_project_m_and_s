@@ -11,7 +11,8 @@ import numpy as np
 #------------------------------------------------------------------------
 
 d_exp_12_1995 = pd.read_pickle('../../original_data/shares/12_1995')
-d_CPI = pd.read_pickle('../../original_data/CPI_quarterly/CPI_q')
+d_CPI = pd.read_pickle('../../original_data/CPI_prepared/CPI_m')
+concordance = pd.read_pickle('../../original_data/Concordance/concordance_final')
 
 #------------------------------------------------------------------------
 ## Concordance between UCC and CPI series-id.

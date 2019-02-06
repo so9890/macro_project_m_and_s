@@ -76,7 +76,7 @@ unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
 regexI= re.compile('[0]{4}')
 unique_SID['item_id']= ""
 
-regexIII =re.compile('^SE{1}?|^SS{1}')
+regexIII =re.compile('^SE{1}?|^SS{1}?' )
 unique_SID['concordance_id']=""
 
 for i in range(0,len(unique_SID)):
@@ -88,13 +88,14 @@ for i in range(0,len(unique_SID)):
     else:
          unique_SID['concordance_id'].iloc[i]=""
          
-        
+unique_SID=unique_SID[unique_SID.concordance_id!=""]     
+ 
 data=data.merge(unique_SID, left_on= 'series_id', right_on= 'series_id', how= 'left')
 # there is no missing item_id in the data, there are 393 item of which 
-#some will be dropped as they are too broad categories. 
+# some will be dropped as they are too broad categories. 
 
 #------------------------------------------------------------------------
-## Check for missing values in year variable:print.
+## Check for missing values in year variable: print.
 #------------------------------------------------------------------------
 
 print('Are there missing year values in the data set?', pd.isna(data.year).unique())
@@ -106,63 +107,60 @@ p = pd.DataFrame(data=data.year.unique(), columns=['year']).sort_values('year',
 print('There are', len(p), 'different years in the price data set.')
 
 
-###############################################################################
-
-""" Derive Concordance with CEX data, ie. UCC. """
 #------------------------------------------------------------------------
-## Read in and clean series identifier, merge it to data sets.
-#------------------------------------------------------------------------
-
-series_id = pd.read_excel('../../original_data/CPI_Data/item_encoding_II.xlsx')
-series_id.columns=['item_id', 'else_else']
-
-# 1) The second column contains first the item description followed by a number
-# and additional things. Only filter the description before the first number.
-# 2) On top, drop too broad categories starting with SA 
-
-regex= re.compile('[0-9]+')
-series_id['Description']=""
-
-series_id['Boolean']=""
-
-
-for i in range(0,len(series_id)):
-    series_id['Description'].iloc[i]=regex.split(series_id.else_else.iloc[i])[0]
-    
-    if re.search('^SA{1}', series_id.item_id.iloc[i]):
-        series_id['Boolean'].iloc[i]=False
-        
-    else:
-       series_id['Boolean'].iloc[i]=True
-       
-series_id = series_id[['item_id','Description', 'Boolean']]
-
-# Merge series_id item_code and data/data_q 'series_id' to check whether extraction worked. 
-
-data=data.merge(series_id, left_on= 'item_id', right_on= 'item_id', how= 'left')
-
-data = data[data.Boolean]
-
-#------------------------------------------------------------------------
-## Only keep data for years from 1996 onwards. CEX data at the moment not 
+## Only keep data for years from 1995/12 onwards. CEX data at the moment not 
 ## available for earlier years.  
 #------------------------------------------------------------------------
 
-data = data[data.year.astype(int).isin(range(1996,2018,1))]
+data = data[data.year.astype(int).isin(range(1995,2018,1))]
+
+#assert no duplicates
+assert len(data.duplicated(['series_id', 'year', 'period']).unique())==1
+print('Each observation in CPI data is unique in terms of series, year and period at this stage.')
+
+#------------------------------------------------------------------------
+## Column concordance_id contains only numerical values that refer to 
+## identifiers used in 1988. The concordance_BLS file is based on 2015
+## codes. Use cocnordance file from Nakamura-Steinsson that maps codes 
+## from 1988 to those used in 2015.
+#------------------------------------------------------------------------
+
+
+# read in concordance file from Nakamura-Steinsson
+NS_concordance = pd.read_excel('../../original_data/Concordance/ELIconcordance_NS.xls', sheet_name= 2, header=0, usecols="A:C")
+NS_concordance['eli88']=NS_concordance.eli88.astype(str)
+# note that 4 digit codes in concordance_id have a leading 0 but not in eli88. 
+for i in range(0, len(NS_concordance)):
+    if len(NS_concordance.eli88.iloc[i])==4:
+        NS_concordance['eli88'].iloc[i]=str(0)+NS_concordance['eli88'].iloc[i]
+        
+assert len(NS_concordance.eli88.duplicated().unique())==1
+print ('There are no duplicates in the NS_concordance file in terms of variable \'eli88\', which is the right_on key. ')
+
+# merge
+data=data.merge(NS_concordance, left_on='concordance_id', right_on='eli88', how='left')
+
+# work with a list of unique concordance_id and merge afterwards to data to speed up.
+data['dup']=data.duplicated(['concordance_id'])
+# the above does not have missing values. All values without any duplicate will be coded as false
+c_id=data[['item_id','concordance_id', 'eli88', 'eli98', 'Description', 'label']][~data.dup]
+
+for i in range(0,len(c_id)):
+    if pd.isna(c_id.eli88.iloc[i]):
+        c_id['concordance_id'].iloc[i]=c_id['concordance_id'].iloc[i]
+    else:
+        c_id['concordance_id'].iloc[i]=c_id['eli98'].iloc[i]
+        
+data=data.merge(c_id[['item_id', 'concordance_id']], left_on='item_id', right_on='item_id', how='left')       
+        
+data=data[['series_id', 'year', 'period', 'value',
+       'Description',  'concordance_id_y'
+       ]]
+data.columns= ['series_id', 'year', 'period', 'value',
+       'Description',  'concordance_id'
+       ]    
+
 data.to_pickle('../../original_data/CPI_prepared/CPI_for_con')
-
-
-""" Clean this up later when ensured not needed anymore """
-# for printing
-#series_new= data[['item_id', 'Description']]
-#series_new= series_new.drop_duplicates('item_id').sort_values('item_id')
-# the above series only has 6 items less... don't bother printing new list. 
-#------------------------------------------------------------------------
-## Save CPI_ITem
-#------------------------------------------------------------------------
-
-#series_id.to_excel('../../original_data/tb_printed/tb_printed_CPI_item_id.xlsx')
-
 
 
 

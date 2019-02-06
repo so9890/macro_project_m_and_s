@@ -1,4 +1,4 @@
-""" CPI_CE concordance. """
+""" William Casey CPI_CE concordance. """
 
 import pandas as pd
 import re
@@ -8,7 +8,6 @@ from functions import _quarter_collapse
 #------------------------------------------------------------------------
 ## Read in CPI and concordance file
 #------------------------------------------------------------------------
-
 d_CPI = pd.read_pickle('../../original_data/CPI_prepared/CPI_for_con')
 con = pd.read_excel('../../original_data/Concordance/CPI_item_id_UCC_WilliamCassey_CPIRequirementsOfCE.xlsx' , header=None, usecols = "A:B", names =['concordance_sheet','Drop'])
 
@@ -64,14 +63,15 @@ for i in range(0,len(con)):
     else:
         con['BoolIII'][i]=""
 
-     
+#------------------------------------------------------------------------     
 # in case BoolIII is True then the UCCs should be assigned to the next higher
 # category of that we have CPI information. This ensures that all UCC in the 
 # concordance files will at least have a CPI counterpart. The next higher 
 # category is always given by two letters. Create a column with the first two 
 # letters of item_id. After all two letters there are numbers. Thw two letters
 # give the 'Expenditure class'.
-        
+#------------------------------------------------------------------------
+      
 # first, drop if Identifier == nan and BoolIII False, then the above explained
 # issue does not apply. 
         
@@ -86,7 +86,7 @@ for i in range(0,len(con)):
             
 con=con[con.BoolIV!=True]
 
-# merge  the categories with no macth in CPI to their expenditure class.
+# merge  the categories with no match in CPI to their expenditure class.
 reggae =re.compile('\d+')
 con.index=range(0,len(con))
 
@@ -112,6 +112,19 @@ for i in range(0,len(con)):
 
 con = con[con.UCC!=""]
 con.index=range(0,len(con))
+
+
+#------------------------------------------------------------------------
+## Some item_ids are on ELI level. Since our price level is on Item-stratum level 
+## have to aggregate ELIs on item-stratum level: ie. first 4 digits of ELI 
+#------------------------------------------------------------------------
+
+con['item_id_new']=""
+for i in range(0,len(con)):
+    con['item_id_new'].iloc[i]=con.item_id.iloc[i][:4]
+
+con=con[['item_id_new','UCC']]
+con.columns=['item_id', 'UCC']
 con.to_pickle('../../original_data/Concordance/concordance_final')
 
 
@@ -164,48 +177,94 @@ will be assigned a unique price level.')
 
 
 #------------------------------------------------------------------------
-## Merge concordance file to CPI file. 
+## Merge concordance file to CPI file.
+#------------------------------------------------------------------------
+#create indicator for each dataframe to be merged
+
+d_CPI["DataFrame_ID_CPI"]="CPI"
+con["DataFrame_ID_con"]="Concordance"
+# use outer merge to decide how to deal with non-merged UCCs
+d_CPI_test=d_CPI.merge(con, left_on= 'concordance_id', right_on= 'item_id', how= 'outer') 
+
+#------------------------------------------------------------------------
+## Check what CPIs in d_CPI are not in the concordance file
 #------------------------------------------------------------------------
 
-d_CPI=d_CPI.merge(con, left_on= 'concordance_id', right_on= 'item_id', how= 'left')
-# check whether all observations in d_CPI could have been merged, 
-# whether merge was correct
-print('There are', len(d_CPI['UCC'][pd.isna(d_CPI['series_id'])]), 'unmerged CPI observations.' )
+not_merged_in_CPI=d_CPI_test[['concordance_id','DataFrame_ID_CPI','DataFrame_ID_con']]
 
-# check which prices could not be merged. Ensure these are broader categories only.
-not_merged=d_CPI[['concordance_id','Description', 'item_id_y']]
-not_merged=not_merged[pd.isna(not_merged.item_id_y)]
-not_merged=not_merged.drop_duplicates('concordance_id')
+not_merged_in_CPI=not_merged_in_CPI[pd.isna(not_merged_in_CPI.DataFrame_ID_con)]
+not_merged_in_CPI=not_merged_in_CPI.drop_duplicates('concordance_id')
 
-not_merged['Boolean']=""
-for i in range(0, len(not_merged)):
-    if re.search('\d+',not_merged.concordance_id.iloc[i]):
-        not_merged['Boolean'].iloc[i]=True
+# 124 CPI series could not be merged. 
+# the non-merged d_CPI items are either expenditure classes where we choose
+# to merge the more granular item_stratum level. Or prices of ELIs that we 
+# did not expect to have in the price data set. 
+
+not_merged_in_CPI['item_stratum_non_merged']=""
+# drop one nan in concordance
+not_merged_in_CPI=not_merged_in_CPI[~pd.isna(not_merged_in_CPI['concordance_id'])]
+not_merged_in_CPI.index=range(0,len(not_merged_in_CPI))
+for i in range(0, len(not_merged_in_CPI)):
+    if re.search('^\w{2}\d{2}$',not_merged_in_CPI['concordance_id'].iloc[i]):
+        not_merged_in_CPI['item_stratum_non_merged'].iloc[i]=True
     else:
-        not_merged['Boolean'].iloc[i]=False
-not_merged=not_merged[not_merged.Boolean]
-# 76 CPI codes of smaller categories were not listed in the concordance file.
+        not_merged_in_CPI['item_stratum_non_merged'].iloc[i]=False
 
-#save
-not_merged[['concordance_id','Description']].to_excel('../../original_data/tb_printed/not_merged_CPIs.xlsx')
+not_merged_item_in_CPI=not_merged_in_CPI[not_merged_in_CPI.item_stratum_non_merged]
+# 2 item stratum not merged: TB01 and TB02. These strata were coded as an 
+# expenditure class. 
+# It was not possible to differentate between TB01 and TB02 as they had the same UCCs
+# in the concordance file. The uCC was therefore merged to the respective expendi-
+# ture class.
+
+#------------------------------------------------------------------------
+## Check what CPIs from concordance file are not in CPI file
+#------------------------------------------------------------------------
+not_merged_in_con=d_CPI_test[['DataFrame_ID_CPI','DataFrame_ID_con', 'item_id','UCC']]
+
+not_merged_in_con=not_merged_in_con[pd.isna(not_merged_in_con.DataFrame_ID_CPI) ]
+# those 3 non_merged UCCs can be matched to the expenditure category
+
+not_merged_in_con['item_id_new']=""
+for i in range(0,len(not_merged_in_con)):
+    not_merged_in_con['item_id_new'].iloc[i]=not_merged_in_con.item_id.iloc[i][:2]
+  
+con_exp_class=not_merged_in_con[['item_id_new', 'UCC']]
+con_exp_class.columns=['item_id_II', 'UCC']
+
+#update con file
+con=con.merge(con_exp_class, left_on='UCC', right_on='UCC', how = 'left')
+for i in range(0,len(con)):
+    if pd.isna(con.item_id_II.iloc[i])==False:
+        con.item_id.iloc[i]= con.item_id_II.iloc[i]
+con= con[['item_id', 'UCC']]
+
+#------------------------------------------------------------------------
+## Final merge
+#------------------------------------------------------------------------
+
+d_CPI=d_CPI.merge(con, left_on= 'concordance_id', right_on= 'item_id', how= 'left') 
 
 #------------------------------------------------------------------------
 ## Clean CPI file to only contain prices that could have been merged to 
 ## UCC codes.
 #------------------------------------------------------------------------
 
-d_CPI = d_CPI[~pd.isna(d_CPI.item_id_y)]
+d_CPI = d_CPI[~pd.isna(d_CPI.item_id)]
 d_CPI = d_CPI[['series_id', 'year', 'value', 'period', 'Description', 'concordance_id', 'UCC']]
 d_CPI.UCC=d_CPI.UCC.astype(float)
+
 
 #------------------------------------------------------------------------
 ## Aggregate price data on quarterly level using the mean of the 3 months
 #------------------------------------------------------------------------
 
-data_q= _quarter_collapse(d_CPI)
+data_q_WC= _quarter_collapse(d_CPI)
 #------------------------------------------------------------------------
 ## save files
 #------------------------------------------------------------------------
 
-data_q.to_pickle('../../original_data/CPI_prepared/CPI_q')
-d_CPI.to_pickle('../../original_data/CPI_prepared/CPI_m')
+data_q_WC.to_pickle('../../original_data/CPI_prepared/CPI_q_WC')
+d_CPI.to_pickle('../../original_data/CPI_prepared/CPI_m_WC')
+
+f= pd.read_pickle('../../original_data/CPI_prepared/CPI_m_WC')

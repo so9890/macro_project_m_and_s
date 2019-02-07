@@ -2,6 +2,7 @@
 
 import pandas as pd
 import re
+import numpy as np
 
 from functions import _quarter_collapse
 
@@ -153,13 +154,22 @@ print('There are only unique UCCs in the con_bls file.')
 assert len(d_CPI.duplicated(['series_id', 'year','period']).unique())==1
 print('There are only unique series_id-year-month combinations in the CPI file.')
 
-d_CPI_con=con_bls.merge(d_CPI, left_on= 'item_id', right_on= 'concordance_id', how= 'left') 
+d_CPI_con=con_bls.merge(d_CPI, left_on= 'item_id', right_on= 'concordance_id', how= 'left', indicator="Source", validate="m:m") 
 # check for uniqueness of UCC per year and period
 d_CPI_con['dups']=d_CPI_con.duplicated(['UCC', 'year','period'], keep=False)
 dups = d_CPI_con[d_CPI_con.dups].sort_values(['UCC','year', 'period'])
 len(r.unique())
 """ There are duplicates""" 
 """ CONTINUE TMR"""
+# check what items in d_CPI_con are not in CPI_con
+df = pd.merge(d_CPI_con, d_CPI, on=['series_id','year', 'period', 'value'], how='left', indicator='Exist')
+df['Exist'] = np.where(df.Exist == 'both', True, False)
+# seems like each observation in terms of series_id, period, year and value is alson in the baseline d_CPI...Why?
+d_CPI['dups_in_CPI']= d_CPI.duplicated(['series_id', 'year','period'], keep=False)
+dups_in_CPI = d_CPI[d_CPI.dups_in_CPI].sort_values(['series_id','year', 'period'])
+# there are no duplicates in d_CPI
+
+
 #------------------------------------------------------------------------
 ## Clean CPI file to only contain prices that could be merged to 
 ## UCC codes.

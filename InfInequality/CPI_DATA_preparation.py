@@ -154,10 +154,10 @@ for i in range(0,len(c_id)):
 data=data.merge(c_id[['item_id', 'concordance_id']], left_on='item_id', right_on='item_id', how='left')       
         
 data=data[['series_id', 'year', 'period', 'value',
-       'Description',  'concordance_id_y'
+        'concordance_id'
        ]]
 data.columns= ['series_id', 'year', 'period', 'value',
-       'Description',  'concordance_id'
+         'concordance_id'
        ]    
 
 data.to_pickle('../../original_data/CPI_prepared/CPI_for_con')

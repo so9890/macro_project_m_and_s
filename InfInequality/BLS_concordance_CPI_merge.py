@@ -2,6 +2,7 @@
 
 import pandas as pd
 import re
+import numpy as np
 
 from functions import _quarter_collapse
 
@@ -41,8 +42,8 @@ dups = con_bls[con_bls.UCC.duplicated(keep=False)] # keep= False marks all dupli
 print('There are', len(UCC_u), 'unique UCCs in the concordance file, and', len(dups.UCC.unique()),\
       'are reported more then once.' )
 
-pd.DataFrame(dups[['item_id','UCC']].sort_values('UCC')).to_excel\
-('../../original_data/tb_printed/duplicates_UCC.xlsx')
+#pd.DataFrame(dups[['item_id','UCC']].sort_values('UCC')).to_excel\
+#('../../original_data/tb_printed/duplicates_UCC.xlsx')
 
 
 con_bls['dupsII'] = con_bls.UCC.duplicated(keep=False)
@@ -121,14 +122,14 @@ not_merged_item_in_CPI=not_merged_in_CPI[not_merged_in_CPI.item_stratum_non_merg
 #------------------------------------------------------------------------
 ## Check what CPIs from concordance file are not in CPI file
 #------------------------------------------------------------------------
-not_merged_in_con=d_CPI_test[['DataFrame_ID_CPI','DataFrame_ID_con', 'item_id_y','UCC']] #item_id_y is from con file
+not_merged_in_con=d_CPI_test[['DataFrame_ID_CPI','DataFrame_ID_con', 'item_id','UCC']] #item_id_y is from con file
 
 not_merged_in_con=not_merged_in_con[pd.isna(not_merged_in_con.DataFrame_ID_CPI)]
 # there are 40 non_merged UCCs, they can be matched to the expenditure category
 
 not_merged_in_con['item_id_new']=""
 for i in range(0,len(not_merged_in_con)):
-    not_merged_in_con['item_id_new'].iloc[i]=not_merged_in_con.item_id_y.iloc[i][:2]
+    not_merged_in_con['item_id_new'].iloc[i]=not_merged_in_con.item_id.iloc[i][:2]
   
 con_exp_class=not_merged_in_con[['item_id_new', 'UCC']]
 con_exp_class.columns=['item_id_II', 'UCC']
@@ -148,15 +149,27 @@ print('There are only unique UCCs in the con_bls file.')
 #------------------------------------------------------------------------
 ## Final merge
 ## to item_id in con_bls (which is not unique) merge respective price info.
-## if would do it otherway around would have duplication of CPI observations.
 #------------------------------------------------------------------------
+# only unique item-year-period combinations?
+assert len(d_CPI.duplicated(['series_id', 'year','period']).unique())==1
+print('There are only unique series_id-year-month combinations in the CPI file.')
 
-d_CPI_con=con_bls.merge(d_CPI, left_on= 'item_id', right_on= 'concordance_id', how= 'left') 
-# check for uniqueness
-r=d_CPI_con.duplicated(['series_id', 'year','period'])
+d_CPI_con=con_bls.merge(d_CPI, left_on= 'item_id', right_on= 'concordance_id', how= 'left', indicator="Source", validate="m:m") 
+# check for uniqueness of UCC per year and period
+d_CPI_con['dups']=d_CPI_con.duplicated(['UCC', 'year','period'], keep=False)
+dups = d_CPI_con[d_CPI_con.dups].sort_values(['UCC','year', 'period'])
 len(r.unique())
 """ There are duplicates""" 
 """ CONTINUE TMR"""
+# check what items in d_CPI_con are not in CPI_con
+df = pd.merge(d_CPI_con, d_CPI, on=['series_id','year', 'period', 'value'], how='left', indicator='Exist')
+df['Exist'] = np.where(df.Exist == 'both', True, False)
+# seems like each observation in terms of series_id, period, year and value is alson in the baseline d_CPI...Why?
+d_CPI['dups_in_CPI']= d_CPI.duplicated(['series_id', 'year','period'], keep=False)
+dups_in_CPI = d_CPI[d_CPI.dups_in_CPI].sort_values(['series_id','year', 'period'])
+# there are no duplicates in d_CPI
+
+
 #------------------------------------------------------------------------
 ## Clean CPI file to only contain prices that could be merged to 
 ## UCC codes.

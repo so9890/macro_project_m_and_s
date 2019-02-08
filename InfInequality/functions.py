@@ -76,7 +76,7 @@ def _cum_distribution(d):
     n= d['FINLWT21'].sum()    
     d_sorted['Percentage_below_equal']= d_sorted['Cum_weights']/n
     
-    #also calculate probability distribution and the probability to observe an income equal or bigger
+    # also calculate probability distribution and the probability to observe an income equal or bigger
     Observations_equal= d_sorted.groupby('VALUE').agg({'VALUE':['min'], 'FINLWT21': ['sum']})
     Observations_equal.columns=['VALUE','Percentage_equal']
     Observations_equal['Percentage_equal']= Observations_equal['Percentage_equal']/n
@@ -149,7 +149,7 @@ def _quarter_collapse(data):
                 data.loc[data['period'].str.contains(str(i)), 'quarter'] = 1+j/3
 
     # collapse dataset on series_id, year and quarter level
-    data_q=data.groupby(['series_id', 'year', 'quarter', 'Description', 'concordance_id', 'UCC'], as_index = False).agg({'value': 'mean'})
+    data_q=data.groupby(['series_id', 'year', 'quarter',  'concordance_id', 'UCC'], as_index = False).agg({'value': 'mean'})
     
     return data_q
     

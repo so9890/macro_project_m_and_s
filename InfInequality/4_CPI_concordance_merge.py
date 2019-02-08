@@ -3,7 +3,6 @@ CPI_Concordance Merge
 """
 
 import pandas as pd
-
 import re
 
 from functions import _quarter_collapse
@@ -12,7 +11,7 @@ from functions import _quarter_collapse
 #------------------------------------------------------------------------
 
 con_WC= pd.read_pickle('../../original_data/Concordance/WC_con')
-#con_BLS = pd.read_pickle('../../original_data/Concordance/BLS_con')
+con_BLS = pd.read_pickle('../../original_data/Concordance/BLS_con')
 
 d_CPI= pd.read_pickle('../../original_data/CPI_prepared/CPI_for_con')
 

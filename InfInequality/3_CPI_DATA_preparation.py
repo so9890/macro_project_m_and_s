@@ -57,22 +57,47 @@ data.series_id=data.series_id.astype(str)
 data.value= data.value.astype(float)
 
 #------------------------------------------------------------------------
-## Only keep US city average prices, ie area_code==0000
+## Only keep US city average prices, ie area_code==0000, 
+## seasonal code (ie. 3rd letter)==U (not seasonally adjusted)
+## periodicity code (ie. 4th letter)==R (monthly level)
 #------------------------------------------------------------------------
 
+#area-code
 data=data[ data['series_id'].str.contains('0000')]
 
+#seasonal-code
+# keep a unique list of items to speed up.
+
+unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
+
+unique_SID['Bool_seasonal']=""
+for i in range(0,len(unique_SID)):
+    if unique_SID['series_id'].iloc[i][2]=='U':
+        unique_SID['Bool_seasonal'].iloc[i] = True
+    else:
+        unique_SID['Bool_seasonal'].iloc[i] = False
+
+unique_SID=unique_SID[unique_SID.Bool_seasonal]
+
+#periodicity-code
+unique_SID['Bool_period']=""
+for i in range(0,len(unique_SID)):
+    if unique_SID['series_id'].iloc[i][3]=='R':
+        unique_SID['Bool_period'].iloc[i] = True
+    else:
+        unique_SID['Bool_period'].iloc[i] = False
+        
+unique_SID=unique_SID[unique_SID.Bool_period]   
+ 
 #------------------------------------------------------------------------
 ## In the data files 'series_id' contains the item_code as the last part of the 
 ## string. Before the item code, there is the area code which consists of four 
 ## numbers and before it there are four letters. We ensured there is only
 ## the area code with '0000' in the data set.
-## Use a series of unique series_id and merge afterwards to speed it up.
 ## Also save away a column of ids that can be used to merge to the concor-
 ## dance file.
 #------------------------------------------------------------------------
 
-unique_SID= pd.DataFrame(data=data.series_id.unique(), columns=['series_id'])
 regexI= re.compile('[0]{4}')
 unique_SID['item_id']= ""
 
@@ -87,36 +112,9 @@ for i in range(0,len(unique_SID)):
         unique_SID['concordance_id'].iloc[i]=regexIII.split(unique_SID['item_id'].iloc[i])[1]
     else:
          unique_SID['concordance_id'].iloc[i]=""
-         
-unique_SID=unique_SID[unique_SID.concordance_id!=""]     
  
-data=data.merge(unique_SID, left_on= 'series_id', right_on= 'series_id', how= 'left')
-# there is no missing item_id in the data, there are 393 item of which 
-# some will be dropped as they are too broad categories. 
-
-#------------------------------------------------------------------------
-## Check for missing values in year variable: print.
-#------------------------------------------------------------------------
-
-print('Are there missing year values in the data set?', pd.isna(data.year).unique())
-
-# print number of years
-p = pd.DataFrame(data=data.year.unique(), columns=['year']).sort_values('year',
-                na_position= 'first')
-
-print('There are', len(p), 'different years in the price data set.')
-
-
-#------------------------------------------------------------------------
-## Only keep data for years from 1995/12 onwards. CEX data at the moment not 
-## available for earlier years.  
-#------------------------------------------------------------------------
-
-data = data[data.year.astype(int).isin(range(1995,2018,1))]
-
-#assert no duplicates
-assert len(data.duplicated(['series_id', 'year', 'period']).unique())==1
-print('Each observation in CPI data is unique in terms of series, year and period at this stage.')
+# drop item_id with SA, too broad categories. 
+unique_SID=unique_SID[ unique_SID.concordance_id!=""]
 
 #------------------------------------------------------------------------
 ## Column concordance_id contains only numerical values that refer to 
@@ -125,40 +123,61 @@ print('Each observation in CPI data is unique in terms of series, year and perio
 ## from 1988 to those used in 2015.
 #------------------------------------------------------------------------
 
-
 # read in concordance file from Nakamura-Steinsson
 NS_concordance = pd.read_excel('../../original_data/Concordance/ELIconcordance_NS.xls', sheet_name= 2, header=0, usecols="A:C")
 NS_concordance['eli88']=NS_concordance.eli88.astype(str)
+
 # note that 4 digit codes in concordance_id have a leading 0 but not in eli88. 
 for i in range(0, len(NS_concordance)):
     if len(NS_concordance.eli88.iloc[i])==4:
         NS_concordance['eli88'].iloc[i]=str(0)+NS_concordance['eli88'].iloc[i]
         
 assert len(NS_concordance.eli88.duplicated().unique())==1
-print ('There are no duplicates in the NS_concordance file in terms of variable \'eli88\', which is the right_on key. ')
+NS_concordance['eli98_dups']=NS_concordance.eli98.duplicated() # only second or higher order duplicate are indicated as true
+print ('There are no duplicates in the NS_concordance file in terms of variable\
+\'eli88\', which is the right_on key. But there are', len(NS_concordance.eli98[NS_concordance.eli98.duplicated()].unique()) ,' in terms of \'eli98\'. Drop duplicates to avoid duplicates in final data set! ')
 
-# merge
-data=data.merge(NS_concordance, left_on='concordance_id', right_on='eli88', how='left')
+NS_concordance=NS_concordance[NS_concordance['eli98_dups']==False]
 
-# work with a list of unique concordance_id and merge afterwards to data to speed up.
-data['dup']=data.duplicated(['concordance_id'])
+# merge to unique_SID file
+unique_SID=unique_SID.merge(NS_concordance, left_on='concordance_id', right_on='eli88', how='left', validate= "1:1")
+
+
+# replace concordance_id by eli98 if exists 
 # the above does not have missing values. All values without any duplicate will be coded as false
-c_id=data[['item_id','concordance_id', 'eli88', 'eli98', 'Description', 'label']][~data.dup]
 
-for i in range(0,len(c_id)):
-    if pd.isna(c_id.eli88.iloc[i]):
-        c_id['concordance_id'].iloc[i]=c_id['concordance_id'].iloc[i]
+for i in range(0,len(unique_SID)):
+    if pd.isna(unique_SID.eli88.iloc[i]):
+        unique_SID['concordance_id'].iloc[i]=unique_SID['concordance_id'].iloc[i]
     else:
-        c_id['concordance_id'].iloc[i]=c_id['eli98'].iloc[i]
+        unique_SID['concordance_id'].iloc[i]=unique_SID['eli98'].iloc[i]
+
+# test for duplicates
+dups_con=unique_SID[unique_SID.concordance_id.duplicated(keep= False)].sort_values(['concordance_id', 'series_id'])
+# there 21 duplicates in terms of eli98! drop duplicates in eli98 before merging to unique SID!
+
+#------------------------------------------------------------------------
+## merge back to main data set
+#------------------------------------------------------------------------
         
-data=data.merge(c_id[['item_id', 'concordance_id']], left_on='item_id', right_on='item_id', how='left')       
-        
-data=data[['series_id', 'year', 'period', 'value',
-        'concordance_id'
-       ]]
-data.columns= ['series_id', 'year', 'period', 'value',
-         'concordance_id'
-       ]    
+data=data.merge(unique_SID[['series_id', 'item_id',
+       'concordance_id']], left_on= 'series_id', right_on= 'series_id', how= 'left', validate="m:1")
+
+# only keep items in price data set that have a concordance_id
+data=data[~pd.isna(data.concordance_id)]
+
+# check for duplicates in terms of concordance_id, year and period
+dups=data.duplicated(['concordance_id', 'year', 'period'], keep=False)
+
+assert len(dups.unique())==1
+print('There are no duplicates in the final CPI file in terms of concordance_id, year and period.')
+
+#------------------------------------------------------------------------
+## Only keep data for years from 1995/12 onwards. CEX data at the moment not 
+## available for earlier years.  
+#------------------------------------------------------------------------
+
+data = data[data.year.astype(int).isin(range(1995,2018,1))]
 
 data.to_pickle('../../original_data/CPI_prepared/CPI_for_con')
 

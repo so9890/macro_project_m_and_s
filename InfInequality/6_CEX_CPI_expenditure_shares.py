@@ -9,7 +9,7 @@ import numpy as np
 #------------------------------------------------------------------------
 
 
-data_12_1995=pd.read_pickle('../../output_data/CEX_output/exp_cpi_12_1995')
+data_12_1995=pd.read_pickle('exp_cpi_12_1995')
 
 #------------------------------------------------------------------------
 ## Collapse data set on percentile level
@@ -34,12 +34,14 @@ exp_data_12_1995['share'] =pd.Series(data=exp_data_12_1995['Weighted_exp'].value
 
 # keep relevant values
 exp_data_12_1995=exp_data_12_1995[['Percentile', 'UCC', 'share', 'Total_expenditures', 'value', 'CodeDescription' ]].sort_values(['Percentile', 'UCC'])
+exp_data_12_1995['percentile_cpi']=exp_data_12_1995['share']*exp_data_12_1995['value']
 
 #------------------------------------------------------------------------
 ##  Calculate percentile-specific price level
 #------------------------------------------------------------------------
-#def _cobb_douglas(sigma_points, gammas, a):
-# return a * (sigma_points ** gammas).product(axis=1)
+real_exp=exp_data_12_1995.groupby('Percentile')['percentile_cpi'].sum().reset_index()
+real_exp['nominal_exp']=exp_data_12_1995['Total_expenditures'].drop_duplicates().reset_index()['Total_expenditures']
+real_exp['real_exp']=real_exp['nominal_exp']/real_exp['percentile_cpi']
  
 #------------------------------------------------------------------------
 ##  Calculate real consumption

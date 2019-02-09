@@ -56,7 +56,7 @@ exp_data_12_1995["percentile_cpi"] = (
 )
 
 # ------------------------------------------------------------------------
-##  Calculate percentile-specific price level
+##  Calculate percentile-specific price level and real consumption
 # ------------------------------------------------------------------------
 real_exp_12_1995 = (
     exp_data_12_1995.groupby("Percentile")["percentile_cpi"].sum().reset_index()
@@ -71,10 +71,6 @@ real_exp_12_1995["real_exp"] = (
 )
 real_exp_12_1995.index = real_exp_12_1995["Percentile"]
 
-# ------------------------------------------------------------------------
-##  Calculate real consumption
-# ------------------------------------------------------------------------
-real_exp_12_1995.to_pickle("../data_for_final_analysis/cex_cpi_real_exp_12_1995")
 # ----------------------------------
 ## Calculate inequality measures
 # --------------------------------
@@ -85,4 +81,8 @@ ineq_data.loc[0] = [
     real_exp_12_1995.loc[90]["real_exp"] - real_exp_12_1995.loc[10]["real_exp"],
 ]
 
-#
+
+#----------------
+## Save data
+#----------------
+real_exp_12_1995.to_pickle("../data_for_final_analysis/cex_cpi_real_exp_12_1995")

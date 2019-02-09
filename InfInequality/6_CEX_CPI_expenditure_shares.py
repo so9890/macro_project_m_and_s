@@ -8,7 +8,7 @@ import pandas as pd
 # ------------------------------------------------------------------------
 
 
-data_12_1995 = pd.read_pickle("exp_cpi_12_1995")
+data_12_1995 = pd.read_pickle("../input_data/exp_cpi_12_1995")
 
 # ------------------------------------------------------------------------
 ## Collapse data set on percentile level
@@ -56,18 +56,17 @@ exp_data_12_1995["percentile_cpi"] = (
 # ------------------------------------------------------------------------
 ##  Calculate percentile-specific price level
 # ------------------------------------------------------------------------
-real_exp = exp_data_12_1995.groupby("Percentile")["percentile_cpi"].sum().reset_index()
-real_exp["nominal_exp"] = (
+real_exp_12_1995 = exp_data_12_1995.groupby("Percentile")["percentile_cpi"].sum().reset_index()
+real_exp_12_1995["nominal_exp"] = (
     exp_data_12_1995["Total_expenditures"]
     .drop_duplicates()
     .reset_index()["Total_expenditures"]
 )
-real_exp["real_exp"] = real_exp["nominal_exp"] / real_exp["percentile_cpi"]
+real_exp_12_1995["real_exp"] = real_exp_12_1995["nominal_exp"] / real_exp_12_1995["percentile_cpi"]
 
 # ------------------------------------------------------------------------
 ##  Calculate real consumption
 # ------------------------------------------------------------------------
-
-# exp_data_12_1995.to_pickle('../../output_data/final/cex_cpi_shares_12_1995')
+real_exp_12_1995.to_pickle('../data_for_final_analysis/cex_cpi_real_exp_12_1995')
 
 #

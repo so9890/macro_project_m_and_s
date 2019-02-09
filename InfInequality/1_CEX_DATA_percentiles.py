@@ -18,9 +18,9 @@ from functions import  weights_percentiles
 
 """ i) and ii) Read in data. """
 
-data = pd.read_csv('../../original_data/CEX_Data/intrvw96/itbi961x.csv')
+data = pd.read_csv('../original_data/CEX_Data/itbi961x.csv')
  
-weights=pd.read_csv('../../original_data/CEX_Data/intrvw96/fmli961x.csv')[['NEWID', 'FINLWT21']]
+weights=pd.read_csv('../original_data/CEX_Data/fmli961x.csv')[['NEWID', 'FINLWT21']]
 # Note to m,yself
 # the data set weights only contains each CU once, thus, weights are the same for each quarter! Make sense as for each month within a quarter
 # the sample is the same , test: 
@@ -87,7 +87,7 @@ d_percentiles = weights_percentiles(d)
 d_percentiles_12_1995 = d_percentiles[['NEWID','FINLWT21', 'Percentile']]
 
 """ Save files. """ 
-d_percentiles_12_1995.to_pickle('../../data/Percentiles/12_1995')
+d_percentiles_12_1995.to_pickle('../out_data_mngment/Percentiles/12_1995')
 
 
     

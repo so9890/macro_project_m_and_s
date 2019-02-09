@@ -2,6 +2,8 @@
 
 """
 import pandas as pd
+import numpy as np
+from functions import gini
 
 # ------------------------------------------------------------------------
 ## Read in data
@@ -56,17 +58,31 @@ exp_data_12_1995["percentile_cpi"] = (
 # ------------------------------------------------------------------------
 ##  Calculate percentile-specific price level
 # ------------------------------------------------------------------------
-real_exp_12_1995 = exp_data_12_1995.groupby("Percentile")["percentile_cpi"].sum().reset_index()
+real_exp_12_1995 = (
+    exp_data_12_1995.groupby("Percentile")["percentile_cpi"].sum().reset_index()
+)
 real_exp_12_1995["nominal_exp"] = (
     exp_data_12_1995["Total_expenditures"]
     .drop_duplicates()
     .reset_index()["Total_expenditures"]
 )
-real_exp_12_1995["real_exp"] = real_exp_12_1995["nominal_exp"] / real_exp_12_1995["percentile_cpi"]
+real_exp_12_1995["real_exp"] = (
+    real_exp_12_1995["nominal_exp"] / real_exp_12_1995["percentile_cpi"]
+)
+real_exp_12_1995.index = real_exp_12_1995["Percentile"]
 
 # ------------------------------------------------------------------------
 ##  Calculate real consumption
 # ------------------------------------------------------------------------
-real_exp_12_1995.to_pickle('../data_for_final_analysis/cex_cpi_real_exp_12_1995')
+real_exp_12_1995.to_pickle("../data_for_final_analysis/cex_cpi_real_exp_12_1995")
+# ----------------------------------
+## Calculate inequality measures
+# --------------------------------
+ineq_data = pd.DataFrame(data=np.zeros((264, 3)), columns=["sd", "Gini", "90-10"])
+ineq_data.loc[0] = [
+    np.std(real_exp_12_1995["real_exp"].values),
+    gini(real_exp_12_1995["real_exp"].values),
+    real_exp_12_1995.loc[90]["real_exp"] - real_exp_12_1995.loc[10]["real_exp"],
+]
 
 #

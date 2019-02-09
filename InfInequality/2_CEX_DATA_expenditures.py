@@ -19,13 +19,13 @@ import numpy as np
 ## Loading and merging data sets. 
 #------------------------------------------------------------------------
  
-data = pd.read_csv('../../original_data/CEX_Data/intrvw96/mtbi961x.csv')
+data = pd.read_csv('../original_data/CEX_Data/mtbi961x.csv')
 data_12_1995=data[data['REF_MO']==12 ]
 data_12_1995=data_12_1995[['NEWID', 'UCC', 'COST']]
 data_12_1995.index= range(len(data_12_1995))
 
 # read in percentiles
-d_percentiles = pd.read_pickle('../../original_data/Percentiles/12_1995')
+d_percentiles = pd.read_pickle('../out_data_mngment/Percentiles/12_1995')
 
 # merge percentiles to expenditure data
 data_12_1995=data_12_1995.merge(d_percentiles, left_on= 'NEWID', right_on= 'NEWID', how= 'left', validate='m:1', indicator='source')
@@ -53,5 +53,5 @@ data_12_1995=data_12_1995[[ 'UCC', 'COST', 'FINLWT21', 'Percentile', 'CodeDescri
 
 data_12_1995['Weighted_exp']= data_12_1995['COST']*data_12_1995['FINLWT21']
 
-data_12_1995[[ 'UCC', 'Percentile', 'Weighted_exp', 'CodeDescription']].to_pickle('../../output_data/CEX_output/data_12_1995')
+data_12_1995[[ 'UCC', 'Percentile', 'Weighted_exp', 'CodeDescription']].to_pickle('../out_data_mngment/CEX_output/data_12_1995')
 

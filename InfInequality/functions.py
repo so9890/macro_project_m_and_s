@@ -6,6 +6,7 @@
 
 
 """
+import numpy as np
 ###############################################################################
 """ 1) """
 
@@ -152,4 +153,19 @@ def _quarter_collapse(data):
     data_q=data.groupby(['series_id', 'year', 'quarter',  'concordance_id', 'UCC'], as_index = False).agg({'value': 'mean'})
     
     return data_q
+
+#############################################################################
+# define function to calculate Gini
     
+def gini(x):
+    """ Calculate gini coefficient for
+       Args:
+           x(np.ndarray): array of inputs to calculate gini coefficent for
+       Returns:
+           gini(float): calculated Gini coefiicient
+           
+    """
+    mad = np.abs(np.subtract.outer(x, x)).mean()
+    gini = mad/(2*np.mean(x))
+    
+    return gini

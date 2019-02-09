@@ -22,10 +22,10 @@ file_names =['food_and_beverages',
 ## Merge Datasets
 #------------------------------------------------------------------------
 
-data = pd.read_excel('../../original_data/CPI_Data/food_and_beverages.xlsx')
+data = pd.read_table('../original_data/CPI_Data/food_and_beverages.txt')
 
 for i in file_names[1:]:  
-    data_helper = pd.read_excel('../../original_data/CPI_Data/'+ str(i) +'.xlsx')
+    data_helper = pd.read_table('../original_data/CPI_Data/'+ str(i) +'.txt')
     ## ensure same column names
     data_helper.columns= data.columns
     data = pd.concat([data, data_helper], sort= False)
@@ -37,15 +37,17 @@ del data_helper
 ## the series_id. 
 ## Ensure all columns have same type of entries. In variable year there are different types.
 ## That leads to errors when collapsing the data set.
-#------------------------------------------------------------------------
+## Mariam: No need for this since files are read from txt as tables
+#------------------------------------------------------------------------3
 
-additional_column =  (data.year).str.split(expand=True)
-additional_column.columns=['suffix', 'year']
-data['series_id'] = ( pd.Series(data.series_id).str.
-                            cat(additional_column.suffix, sep='', na_rep=' '))
 
-boolean_isnan = pd.isna(pd.Series(additional_column.year))
-data.year[boolean_isnan == False] = additional_column.year
+#additional_column =  (data.year).str.split(expand=True)
+#additional_column.columns=['suffix', 'year']
+#data['series_id'] = ( pd.Series(data.series_id).str.
+#                            cat(additional_column.suffix, sep='', na_rep=' '))
+
+#boolean_isnan = pd.isna(pd.Series(additional_column.year))
+#data.year[boolean_isnan == False] = additional_column.year
 
 #------------------------------------------------------------------------
 ## Code variable year as int! Otherwise not recognised as equal years. 

@@ -38,7 +38,7 @@ del data_helper
 ## the series_id.
 ## Ensure all columns have same type of entries. In variable year there are different types.
 ## That leads to errors when collapsing the data set.
-## Mariam: No need for this since files are read from txt as tables
+## Mariam: No need for this since files are read from txt as tables without mixing columns
 # ------------------------------------------------------------------------3
 
 

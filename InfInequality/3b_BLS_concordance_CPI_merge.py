@@ -2,7 +2,6 @@
 
 import pandas as pd
 import re
-import numpy as np
 
 from functions import _quarter_collapse
 

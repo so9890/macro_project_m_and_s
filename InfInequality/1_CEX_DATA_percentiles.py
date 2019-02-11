@@ -14,15 +14,15 @@ import pandas as pd
 import numpy as np
 
 from functions import weights_percentiles
-
+from os import listdir
 ##############################################################################
 
 """ i) and ii) Read in data. """
-list_year = ['961']#, '962', '963', '964', '971', '972', '973', '974', '981', '982', '983', '984', 
-             #'991', '992', '993', '994', '001', '002', '003', '004', '011', '012', '013', '014', '021',
-             #'022', '023', '024', '031', '032', '033', '034', '041', '042', '044', '051', '052', '053', 
-             #'054', '061', '062', '063', '064']
-#data = {}
+list_year = ['961x', '962', '963', '964', '971x', '972', '973', '974', '981x', '982', '983', '984', 
+             '991x', '992', '993', '994', '001x', '002', '003', '004', '011x', '012', '013', '014', '021x',
+             '022', '023', '024', '031x', '032', '033', '034', '041x', '042', '044', '051x', '052', '053', 
+             '054', '061x', '062', '063', '064']
+data_dict = {}
 #weights={}
 
 class MyError(LookupError):
@@ -98,8 +98,23 @@ for i in list_year:
         """ Derive cummulative distribution function and percentiles. """
 
         d = income_j_i
-        d_percentiles = weights_percentiles(d)
-        d_percentiles_j_i = d_percentiles[["NEWID", "FINLWT21", "Percentile"]]
+        #d_percentiles = weights_percentiles(d)
+        #d_percentiles_j_i = d_percentiles[["NEWID", "FINLWT21", "Percentile"]]
 
         """ Save files. """
-        d_percentiles_j_i.to_pickle("../out_data_mngment/Percentiles/"+str(j)+"_"+dd)
+        data_dict[str(j)+"_"+dd+'_'+i[0:3]] = d
+
+#for in listdir("../Income_month") 
+list_1=list(data_dict.keys()) 
+list_2=list(set([item[:-4] for item in list_1]))
+
+for i in list_2:
+    x=[ii for ii in list(data_dict.keys()) if ii.startswith(i)]
+    data_i_j=pd.concat([data_dict[k] for k in x])
+    d_percentiles = weights_percentiles(data_i_j)
+    d_percentiles_i_j = d_percentiles[["NEWID", "FINLWT21", "Percentile"]]
+    d_percentiles_i_j.to_pickle("../out_data_mngment/Percentiles/"+i)
+    
+       
+        
+        

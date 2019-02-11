@@ -43,7 +43,7 @@ for i in list_year:
         ii = str(data_j_i["REF_YR"].unique())[1:5]
         data_j_i = data_j_i[["NEWID", "UCC", "COST"]]
         data_j_i.index = range(len(data_j_i))
-
+##############################################################################################################
 # read in percentiles
         d_percentiles = pd.read_pickle(
             "../out_data_mngment/Percentiles/" + str(j)+'_'+ii)

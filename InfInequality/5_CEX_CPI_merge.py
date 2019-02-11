@@ -1,5 +1,4 @@
 from os import listdir
-import numpy as np
 import pandas as pd
 """ This file is to bring consumption shares and price data together. """
 

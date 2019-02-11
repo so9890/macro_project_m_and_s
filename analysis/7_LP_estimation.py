@@ -24,7 +24,7 @@ for i, k in [stdev, gini_coeff, p_9010]:
         y = k.shift(-h) - k.shift(-(h - 1))
         reg = sm.OLS(
             endog=y,
-            exog=X[["const", "l_1", "l_2", "rr_l0", "rr_l1", "rr_l2"]],
+            exog=X.loc[0:len(y)][["const", "l_1", "l_2", "rr_l0", "rr_l1", "rr_l2"]],
             missing="drop",
         ).fit()
         b[i, h] = reg.params[3]

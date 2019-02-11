@@ -104,12 +104,15 @@ for i in list_year:
         """ Save files. """
         data_dict[str(j)+"_"+dd+'_'+i[0:3]] = d
 
-#for in listdir("../Income_month") 
+###############################################################################
 list_1=list(data_dict.keys()) 
 list_2=list(set([item[:-4] for item in list_1]))
+for l,v in enumerate(list_2):
+     if v.endswith('_')==True:
+         list_2[l]=list_2[l][:-1]
 
 for i in list_2:
-    x=[ii for ii in list(data_dict.keys()) if ii.startswith(i)]
+    x=[ii for ii in list_1 if ii.startswith(i)]
     data_i_j=pd.concat([data_dict[k] for k in x])
     d_percentiles = weights_percentiles(data_i_j)
     d_percentiles_i_j = d_percentiles[["NEWID", "FINLWT21", "Percentile"]]

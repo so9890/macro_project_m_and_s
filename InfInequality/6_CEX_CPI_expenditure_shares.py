@@ -11,14 +11,14 @@ from os import listdir
 # ------------------------------------------------------------------------
 
 ineq_data = pd.DataFrame(data=np.zeros((len(listdir(
-    "../out_data_mngment/CEX_merged_CPI/")), 3)), columns=["sd", "Gini", "90-10"])
+    "../out_data_mngment/CEX_merged_CPI/")), 5)), columns=["year","month","sd", "Gini", "90-10"])
 
 
 # ------------------------------------------------------------------------
 ## Read in data
 # ------------------------------------------------------------------------
 
-for n, i in enumerate(listdir("../out_data_mngment/CEX_merged_CPI/")):
+for n, i in enumerate(['exp_cpi_09_1997']):
     data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/"+i)
 
 # ------------------------------------------------------------------------
@@ -35,7 +35,7 @@ for n, i in enumerate(listdir("../out_data_mngment/CEX_merged_CPI/")):
 
     exp_data_j_i_total = exp_data_j_i.groupby(["Percentile"], as_index=False).agg(
         {"Weighted_exp": "sum"}
-    )
+    ) #nominal
     exp_data_j_i_total.columns = ["Percentile", "Total_expenditures"]
 
     exp_data_j_i = exp_data_j_i.merge(
@@ -91,6 +91,8 @@ for n, i in enumerate(listdir("../out_data_mngment/CEX_merged_CPI/")):
 # Calculate inequality measures
 # --------------------------------
     ineq_data.loc[n] = [
+        i.split('_',3)[3],   
+        i.split('_',3)[2],
         np.std(np.log(real_exp_j_i["real_exp"].values)),
         gini(real_exp_j_i["real_exp"].values),
         np.log(real_exp_j_i.loc[90]["real_exp"]) -
@@ -101,9 +103,9 @@ for n, i in enumerate(listdir("../out_data_mngment/CEX_merged_CPI/")):
 # ----------------
 # Save data sets of real_exp
 # ----------------
-    real_exp_j_i.to_pickle("../data_for_final_analysis/cex_real_exp_"+i[7:])
+    real_exp_j_i.to_pickle("../out_data_mngment/data_for_final_analysis/cex_real_exp_"+i[7:])
 
 # ----------------
 # Save data sets of inequality measures
 # ----------------
-ineq_data.to_pickle("../data_for_final_analysis/data_inequality")
+ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality")

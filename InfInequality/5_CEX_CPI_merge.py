@@ -12,7 +12,7 @@ import pandas as pd
 # Read in Data.
 # ------------------------------------------------------------------------
 
-d_CPI = pd.read_pickle("../../original_data/CPI_prepared/CPI_m")
+d_CPI = pd.read_pickle("../out_data_mngment/CPI_prepared/CPI_m")
 
 for i in listdir("../out_data_mngment/CEX_output/"):
     d_exp_j_i = pd.read_pickle("../out_data_mngment/CEX_output/"+i)
@@ -23,7 +23,7 @@ for i in listdir("../out_data_mngment/CEX_output/"):
 
     d_CPI_j_i = d_CPI[d_CPI["year"] == int(i[-4:])]
     d_CPI_j_i = d_CPI_j_i[["series_id", "value", "UCC"]
-                          ][d_CPI_j_i.period.str.contains(i[5:7])]
+                          ][d_CPI_j_i.period.str.contains(i.split("_", 3)[1])]
 
 # ------------------------------------------------------------------------
 # Merge CPI data set to expenditure data.
@@ -70,7 +70,7 @@ for i in listdir("../out_data_mngment/CEX_output/"):
     d_CPI_WC = pd.read_pickle("../out_data_mngment/CPI_prepared/CPI_m_WC")
 
 # keep relevant periods only
-    d_CPI_WC_j_i = d_CPI_WC[d_CPI_WC["year"] == i[-4:]]
+    d_CPI_WC_j_i = d_CPI_WC[d_CPI_WC["year"] == int(i[-4:])]
     d_CPI_WC_j_i = d_CPI_WC_j_i[["series_id", "value", "UCC"]][
         d_CPI_WC_j_i.period.str.contains(i[5:7])
     ]

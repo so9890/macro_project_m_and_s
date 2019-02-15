@@ -4,6 +4,8 @@
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
 
 data = pd.read_pickle("../out_data_mngment/data_for_final_analysis/data_inequality")
 data = data.sort_values(by=["year", "month"])
@@ -36,18 +38,22 @@ X = {}
 for k in [stdev, gini_coeff, p90_p10]:
     X[k.name] = pd.DataFrame()
     X[k.name]["const"] = np.ones(len(shock_series))
-    for i in range(21):
+    for i in range(5):
         X[k.name]["rr_L" + str(i)] = shock_series["Shock_values"].shift(i)
     for j in range(1, 3):
         X[k.name]["dy_" + str(j)] = stdev.shift(j) - stdev.shift(j + 1)
 
 
 # prepare dataframes for impulse responses and standard deviations
-b = pd.DataFrame(
+irf_values = pd.DataFrame(
     data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
 )  # 20 lags
 
-coeff_st_dev = pd.DataFrame(
+irf_st_dev = pd.DataFrame(
+    data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
+)
+
+irf_pval = pd.DataFrame(
     data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
 )
 
@@ -56,5 +62,13 @@ for k in [stdev, gini_coeff, p90_p10]:
     for h in range(21):
         y = k.shift(-h) - k.shift(-(h - 1))
         reg = sm.OLS(endog=y, exog=X[k.name], missing="drop").fit()
-        b.loc[h, k.name] = reg.params[3]
-        coeff_st_dev[h, k.name] = reg.bse[3]
+        irf_values.loc[h, k.name] = reg.params[1]
+        irf_st_dev.loc[h, k.name] = reg.bse[1]
+        irf_pval.loc[h, k.name] = reg.pvalues[1]
+    plt.plot(irf_values[k.name],label="irf")
+    plt.plot( 2 * irf_st_dev[k.name],label='2_st_dev_up')
+    plt.plot( -2 * irf_st_dev[k.name],label='2_st_dev_down')
+    plt.xlabel("time horizon")
+    plt.ylabel(k.name)
+    plt.savefig("../out_figures/" + k.name)
+    plt.clf()

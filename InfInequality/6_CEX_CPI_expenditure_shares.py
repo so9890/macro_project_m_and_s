@@ -18,9 +18,14 @@ ineq_data = pd.DataFrame(data=np.zeros((len(listdir(
 ## Read in data
 # ------------------------------------------------------------------------
 
-for n, i in enumerate(['exp_cpi_09_1997']):
+for n, i in enumerate(listdir(
+    "../out_data_mngment/CEX_merged_CPI/")):
     data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/"+i)
-
+    
+#-------------------------------
+# drop hh-s with negative income
+#-------------------------------    
+    data_j_i=data_j_i[data_j_i["Weighted_exp"].values>0]
 # ------------------------------------------------------------------------
 # Collapse data set on percentile level
 # ------------------------------------------------------------------------

@@ -48,7 +48,7 @@ for i, k in enumerate([stdev, gini_coeff, p90_p10]):
         y = k.shift(-h) - k.shift(-(h - 1))
         reg = sm.OLS(
             endog=y,
-            exog=X[["const", "l_1", "l_2", "rr_l0", "rr_l1", "rr_l2"]],
+            exog=X.loc[0:len(y)][["const", "l_1", "l_2", "rr_l0", "rr_l1", "rr_l2"]],
             missing="drop",
         ).fit()
         b.loc[h, k.name] = reg.params[3]

@@ -1,11 +1,11 @@
-"""  2) Calculate expenditure weights on percentile level. 
+"""  2) Calculate expenditure weights on percentile level.
     i)    Prepare expenditure files first, only keep one month-year combination.
-    ii)   Merge income percentiles to expenditure file for given month-year. 
+    ii)   Merge income percentiles to expenditure file for given month-year.
     iii)  Merge CPI data and drop non-merged expenditures.
     iv)   Apply sampling weights to expenditures
     v)    Calculate shares.
-   
-    d_percentiles is the data set that results from running file CEX_DATA_percentiles. 
+
+    d_percentiles is the data set that results from running file CEX_DATA_percentiles.
  """
 import pandas as pd
 
@@ -28,7 +28,7 @@ CE_dic = CE_dic[["CodeValue", "CodeDescription"]]
 # ------------------------------------------------------------------------
 # Loading and merging data sets.
 # ------------------------------------------------------------------------
-# , '962', '963', '964', '971', '972', '973', '974', '981', '982', '983', '984',
+
 list_year = [
     "961x",
     "962",
@@ -88,6 +88,7 @@ list_year = [
     "094",
 ]
 
+
 data_dict_exp = {}
 
 for i in list_year:
@@ -98,6 +99,7 @@ for i in list_year:
         data_i = data_i[["NEWID", "UCC", "COST"]]
         data_i.index = range(len(data_i))
         data_dict_exp[str(j) + "_" + ii + "_" + i[0:3]] = data_i
+
 
 
 list_1 = list(data_dict_exp.keys())
@@ -144,7 +146,7 @@ for i in list_2: #cautious for 2009_12
         data_i[["UCC", "Percentile", "Weighted_exp", "CodeDescription"]].to_pickle(
         "../out_data_mngment/CEX_output/data_0" + i
         )
-    else:    
+    else:
         data_i[["UCC", "Percentile", "Weighted_exp", "CodeDescription"]].to_pickle(
         "../out_data_mngment/CEX_output/data_" + i
         )

@@ -1,11 +1,11 @@
-""" This file is to 
-    1) construct household percentiles of income distribution  
- 
-    i)   Read in ITBI/ITII files. ITBI until 2004, startind from 2004 ITII, that's 
+""" This file is to
+    1) construct household percentiles of income distribution
+
+    i)   Read in ITBI/ITII files. ITBI until 2004, startind from 2004 ITII, that's
          when they are first available.
-    ii)  Merge sampling weights from FMLI file. 
+    ii)  Merge sampling weights from FMLI file.
     -----Tests for how many Consumer Units (CUs) have not reported income ------
-    iii) Derive income distribution percentiles. 
+    iii) Derive income distribution percentiles.
 
 """
 ##############################################################################
@@ -120,10 +120,10 @@ for i in list_year_1:
 
     #################################################################################
 
-    """ iii) Derive income distribution percentiles for pre-tax income. 
-    
-    Derive percentiles for each month separately. This 
-    
+    """ iii) Derive income distribution percentiles for pre-tax income.
+
+    Derive percentiles for each month separately. This
+
     """
 
     # Note to myself: the UCC-item 'Income before taxes' and 'Income after taxes' don't
@@ -134,7 +134,7 @@ for i in list_year_1:
         income_j_i = income_data_before_tax[income_data_before_tax["REFMO"] == j]
         # this keeps those rows that correspond to month j.which is unique
 
-        """ Test. 
+        """ Test.
 
         Ensure there is only one year, i.e. all observations stem from the same month-year combination.
 
@@ -198,10 +198,10 @@ for i in list_year_2:
 
     #################################################################################
 
-    """ iii) Derive income distribution percentiles for pre-tax income. 
-    
-    Derive percentiles for each month separately. This 
-    
+    """ iii) Derive income distribution percentiles for pre-tax income.
+
+    Derive percentiles for each month separately. This
+
     """
 
     # Note to myself: the UCC-item 'Income before taxes' and 'Income after taxes' don't
@@ -212,7 +212,7 @@ for i in list_year_2:
         income_j_i = income_data_before_tax[income_data_before_tax["REFMO"] == j]
         # this keeps those rows that correspond to month j.which is unique
 
-        """ Test. 
+        """ Test.
 
         Ensure there is only one year, i.e. all observations stem from the same month-year combination.
 

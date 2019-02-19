@@ -105,12 +105,36 @@ for n, i in enumerate(listdir(
     ]
 
 
-# ----------------
+# --------------------------
 # Save data sets of real_exp
-# ----------------
+# --------------------------
     real_exp_j_i.to_pickle("../out_data_mngment/data_for_final_analysis/cex_real_exp_"+i[7:])
 
 # ----------------
 # Save data sets of inequality measures
 # ----------------
 ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality")
+
+#--------------------------------------------------------------------
+# Construct series of real consumptions for 10th and 90th percentiles
+#--------------------------------------------------------------------
+
+real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100'])
+real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10'])
+
+for n,i in enumerate(listdir("../data_for_final_analysis/")[:-1]):
+       df= pd.read_pickle("../data_for_final_analysis/"+i)
+       real_exp_10.loc[n]=[
+       i.split('__')[1].split('_')[1],
+       i.split('__')[1].split('_')[0],
+       np.mean(np.log(df["real_exp"][df["Percentile"]<=10]))
+       ]
+       real_exp_90.loc[n]=[
+       i.split('__')[1].split('_')[1],
+       i.split('__')[1].split('_')[0],
+       np.mean(np.log(df["real_exp"][df["Percentile"]>=91]))
+       ]
+       
+real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p10")
+real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p90")
+

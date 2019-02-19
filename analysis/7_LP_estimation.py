@@ -40,7 +40,7 @@ exp_90 = exp_90[:158]
 
 shock_series = pd.read_excel(
     "../original_data/Shocks_data/RR_MPshocks_Updated.xls", sheet_name="Sheet1"
-)
+)*100
 
 
 # shock_series = pd.concat(

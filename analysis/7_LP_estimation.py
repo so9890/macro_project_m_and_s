@@ -60,17 +60,11 @@ for k in [stdev, gini_coeff, p90_p10,exp_10,exp_90]:
 
 
 # prepare dataframes for impulse responses and standard deviations
-irf_values = pd.DataFrame(
-    data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
-)  # 20 lags
+irf_values = pd.DataFrame()  # 20 lags
 
-irf_st_dev = pd.DataFrame(
-    data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
-)
+irf_st_dev = pd.DataFrame()
 
-irf_pval = pd.DataFrame(
-    data=np.zeros((20, 3)), columns=["stdev", "gini_coeff", "p90_p10"]
-)
+irf_pval = pd.DataFrame()
 
 
 for k in [stdev, gini_coeff, p90_p10,exp_10,exp_90]:

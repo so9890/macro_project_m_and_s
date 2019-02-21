@@ -70,7 +70,7 @@ X = {}
 for k in [stdev, gini_coeff, p90_p10, exp_10, exp_90]:
     X[k.name] = pd.DataFrame()
     X[k.name]["const"] = np.ones(len(shock_series))
-    for i in range(21):
+    for i in range(20):
         X[k.name]["rr_L" + str(i)] = shock_series["Shock_values"].shift(i)
     for j in range(1, 7):
         X[k.name]["dy_" + str(j)] = k.shift(j) - k.shift(j + 1)

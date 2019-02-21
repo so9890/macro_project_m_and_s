@@ -1,6 +1,4 @@
-"""Calculate shares and real expenditures per percentile
-
-"""
+"""Calculate shares and real expenditures per percentile """
 import pandas as pd
 import numpy as np
 from functions import gini
@@ -25,7 +23,9 @@ for n, i in enumerate(listdir(
 #-------------------------------
 # drop hh-s with negative income
 #-------------------------------    
+    
     data_j_i=data_j_i[data_j_i["Weighted_exp"].values>0]
+    
 # ------------------------------------------------------------------------
 # Collapse data set on percentile level
 # ------------------------------------------------------------------------
@@ -119,11 +119,13 @@ ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality
 # Construct series of real consumptions for 10th and 90th percentiles
 #--------------------------------------------------------------------
 
+## NOTE this code does not work if has run before!
+
 real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100'])
 real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10'])
 
-for n,i in enumerate(listdir("../data_for_final_analysis/")[:-1]):
-       df= pd.read_pickle("../data_for_final_analysis/"+i)
+for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1]):
+       df= pd.read_pickle("../out_data_mngment/data_for_final_analysis/"+i)
        real_exp_10.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],

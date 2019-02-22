@@ -141,4 +141,3 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1
        
 real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p10")
 real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p90")
-

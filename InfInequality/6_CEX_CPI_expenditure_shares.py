@@ -123,16 +123,10 @@ ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality
 
 real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100'])
 real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10'])
-<<<<<<< HEAD
-real_exp_qrtly =pd.DataFrame()
-for n,i in enumerate(listdir("../data_for_final_analysis/")[:-1]):
-       df= pd.read_pickle("../data_for_final_analysis/"+i)
-       df['date'] = i.split('__')[1].split('_')[0]+'-'+i.split('__')[1].split('_')[1]
-=======
+
 
 for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1]):
        df= pd.read_pickle("../out_data_mngment/data_for_final_analysis/"+i)
->>>>>>> 9dc54f6f8840798c1a9ca0d7e97cc16cfe52a9db
        real_exp_10.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
@@ -143,12 +137,9 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1
        i.split('__')[1].split('_')[0],
        np.mean(np.log(df["real_exp"][df["Percentile"]>=91]))
        ]
-       real_exp_qrtly=pd.concat([real_exp_qrtly,df])
 
-real_exp_qrtly = real_exp_qrtly [['date','Percentile','percentile_cpi','nominal_exp','real_exp']] 
        
 real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p10")
 real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p90")
-real_exp_qrtly.to_pickle("../out_data_mngment/data_for_final_analysis/real_exp_qrtly")
 
 

@@ -10,6 +10,12 @@ data = pd.read_pickle("../out_data_mngment/data_for_final_analysis/data_inequali
 data = data.sort_values(by=["year", "month"])
 data.index = range(len(data))
 data['mm/yyyy'] = data['month']+'/'+data['year']
+for  c in data.columns[2:5]:
+    plt.plot(data['mm/yyyy'],data[c])
+    plt.ylabel(c)
+    plt.xticks(data['mm/yyyy'][::8],rotation=70)
+    plt.savefig("../out_figures/time_series_of"+c ,bbox_inches='tight')
+    plt.clf()
 
 stdev = data.loc[:157]["sd"]
 stdev.name = "stdev"

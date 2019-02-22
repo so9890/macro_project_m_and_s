@@ -124,4 +124,4 @@ for k in [stdev, gini_coeff, p90_p10, exp_10, exp_90]:
     plt.xlabel("time horizon")
     plt.ylabel(k.name)
     plt.savefig("../out_figures/" + k.name, bbox_inches="tight")
-    plt.clf()
+plt.clf()

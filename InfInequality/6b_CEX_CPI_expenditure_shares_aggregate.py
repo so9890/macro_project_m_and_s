@@ -131,8 +131,8 @@ ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/data_in
 # Construct series of real consumptions for 10th and 90th percentiles
 #--------------------------------------------------------------------
 
-real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100'])
-real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10'])
+real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100_agg'])
+real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10_agg'])
 
 for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis_agg_cpi/")[:-1]):
        df= pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/"+i)

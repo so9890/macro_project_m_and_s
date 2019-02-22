@@ -9,38 +9,38 @@ import matplotlib.pyplot as plt
 data = pd.read_pickle("../out_data_mngment/data_for_final_analysis/data_inequality")
 data = data.sort_values(by=["year", "month"])
 data.index = range(len(data))
-data['mm/yyyy'] = data['month']+'/'+data['year']
-for  c in data.columns[2:5]:
-    plt.plot(data['mm/yyyy'],data[c])
+data["mm/yyyy"] = data["month"] + "/" + data["year"]
+for c in data.columns[2:5]:
+    plt.plot(data["mm/yyyy"], data[c])
     plt.ylabel(c)
-    plt.xticks(data['mm/yyyy'][::8],rotation=70)
-    plt.savefig("../out_figures/time_series_of"+c ,bbox_inches='tight')
+    plt.xticks(data["mm/yyyy"][::8], rotation=70)
+    plt.savefig("../out_figures/time_series_of" + c, bbox_inches="tight")
     plt.clf()
 
 stdev = data.loc[:157]["sd"]
 stdev.name = "stdev"
-plt.plot(data.loc[:157]['mm/yyyy'],stdev)
-plt.ylabel('st. dev')
-plt.xticks(data.loc[:157]['mm/yyyy'][::8],rotation=70)
-plt.savefig("../out_figures/real_ineq_stdev" ,bbox_inches='tight')
+plt.plot(data.loc[:157]["mm/yyyy"], stdev)
+plt.ylabel("st. dev")
+plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
+plt.savefig("../out_figures/real_ineq_stdev", bbox_inches="tight")
 plt.clf()
 
 
 gini_coeff = data.loc[:157]["Gini"]
 gini_coeff.name = "gini_coeff"
-plt.plot(data.loc[:157]['mm/yyyy'],gini_coeff)
-plt.ylabel('Gini')
-plt.xticks(data.loc[:157]['mm/yyyy'][::8],rotation=70)
-plt.savefig("../out_figures/real_ineq_Gini" ,bbox_inches='tight')
+plt.plot(data.loc[:157]["mm/yyyy"], gini_coeff)
+plt.ylabel("Gini")
+plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
+plt.savefig("../out_figures/real_ineq_Gini", bbox_inches="tight")
 plt.clf()
 
 
 p90_p10 = data.loc[:157]["90-10"]
 p90_p10.name = "p90_p10"
-plt.plot(data.loc[:157]['mm/yyyy'],p90_p10)
-plt.ylabel('p90-p10')
-plt.xticks(data.loc[:157]['mm/yyyy'][::8],rotation=70)
-plt.savefig("../out_figures/real_ineq_p90-p10" ,bbox_inches='tight')
+plt.plot(data.loc[:157]["mm/yyyy"], p90_p10)
+plt.ylabel("p90-p10")
+plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
+plt.savefig("../out_figures/real_ineq_p90-p10", bbox_inches="tight")
 plt.clf()
 
 
@@ -89,22 +89,39 @@ irf_st_dev = pd.DataFrame()
 
 irf_pval = pd.DataFrame()
 
-H= 20
+H = 20
 for k in [stdev, gini_coeff, p90_p10, exp_10, exp_90]:
-    for h in range(H+1):
+    for h in range(H + 1):
         y = k.shift(-h) - k.shift(-(h - 1))
         reg = sm.OLS(endog=y, exog=X[k.name], missing="drop").fit()
-        rcov = reg.get_robustcov_results(cov_type='HAC', maxlags=10,use_correction=True)
+        rcov = reg.get_robustcov_results(
+            cov_type="HAC", maxlags=10, use_correction=True
+        )
         irf_values.loc[h, k.name] = rcov.params[1]
         irf_st_dev.loc[h, k.name] = rcov.bse[1]
         irf_pval.loc[h, k.name] = rcov.pvalues[1]
-    plt.plot(irf_values[k.name], label="irf",color='black',linewidth=2)
-    plt.plot(1.65 * irf_st_dev[k.name]+irf_values[k.name],'--', label="2_st_dev_up",color='grey')
-    plt.plot(-1.65 * irf_st_dev[k.name]+irf_values[k.name],'--', label="2_st_dev_down",color='grey')
-    x = np.arange(0,H+1)
-    plt.fill_between(x,1.65 * irf_st_dev[k.name]+irf_values[k.name],-1.65 * irf_st_dev[k.name]+irf_values[k.name],color='silver')
-    plt.plot([0]*(H+1),color='red')
+    plt.plot(irf_values[k.name], label="irf", color="black", linewidth=2)
+    plt.plot(
+        1.65 * irf_st_dev[k.name] + irf_values[k.name],
+        "--",
+        label="2_st_dev_up",
+        color="grey",
+    )
+    plt.plot(
+        -1.65 * irf_st_dev[k.name] + irf_values[k.name],
+        "--",
+        label="2_st_dev_down",
+        color="grey",
+    )
+    x = np.arange(0, H + 1)
+    plt.fill_between(
+        x,
+        1.65 * irf_st_dev[k.name] + irf_values[k.name],
+        -1.65 * irf_st_dev[k.name] + irf_values[k.name],
+        color="silver",
+    )
+    plt.plot([0] * (H + 1), color="red")
     plt.xlabel("time horizon")
     plt.ylabel(k.name)
-    plt.savefig("../out_figures/" + k.name,bbox_inches='tight')
+    plt.savefig("../out_figures/" + k.name, bbox_inches="tight")
 plt.clf()

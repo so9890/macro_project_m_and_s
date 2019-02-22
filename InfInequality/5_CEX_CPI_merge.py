@@ -3,7 +3,7 @@ import pandas as pd
 """ This file is to bring consumption shares and price data together. """
 
 """ We have a file  with the expenditure shares on percentile-month/year-UCC level.
-    And a file containing CPI data on quarterly level. 
+    And a file containing CPI data on monthly level. 
 """
 
 

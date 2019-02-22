@@ -237,6 +237,10 @@ for i in list_year_2:
 list_1 = list(data_dict.keys())
 list_2 = list(set([item[:-4] for item in list_1]))
 list_2 = sorted(list_2, key=lambda x: int(x[-4:]))
+list_q_y = []
+for q in range(1,5):
+    for y in range(1995,2010):
+        list_q_y.append(str(q)+'_'+str(y))
 
 """ Derive cummulative distribution function and percentiles. """
 
@@ -251,3 +255,16 @@ for s, i in enumerate(list_2[9:]):
 
     d_percentiles_i_j.to_pickle("../out_data_mngment/Percentiles/" + i)
     print(len(list_2[9:]) - s - 1, "datasets left to generate")
+
+for s, i in enumerate(list_q_y):
+    q=range(int(i.split('_')[0])*3-2,int(i.split('_')[0])*3+1)
+    y=int(i.split('_')[1])
+    x=[ii for ii in list_1 if (int(ii.split('_')[0]) in q and int(ii.split('_')[1])==y)]
+    data_q_y = pd.concat([data_dict[k] for k in x])
+    data_q_y = data_q_y.groupby(["NEWID"]).sum() #what to do with te weights???
+    d_percentiles = weights_percentiles(data_q_y)
+    d_per_q_y=d_percentiles[["NEWID", "FINLWT21", "Percentile"]]
+    d_per_qy.to_pickle("../out_data_mngment/Percentiles/" +"Q"+i)
+    print(len(list_q_y) - s - 1, "datasets left to generate")
+
+    

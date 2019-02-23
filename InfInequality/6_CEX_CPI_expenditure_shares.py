@@ -121,8 +121,8 @@ ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality
 
 ## NOTE this code does not work if has run before!
 
-real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100'])
-real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10'])
+real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100_het'])
+real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10_het'])
 
 
 for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1]):

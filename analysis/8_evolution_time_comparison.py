@@ -28,12 +28,10 @@ for c in [2,3]:
     plt.plot(df_sorted['time'], df_sorted.T.iloc[c],'--', label="Aggregate CPI ",color='orange',linewidth=2,scalex =False)
     plt.plot( df_sorted['time'], df_sorted.T.iloc[c+2],'--', label="Heterogeneous CPI",color='blue')
     plt.legend(loc=3)
-    #x=df_sorted['time']
-    #plt.fill_between(df_sorted['time'], df_sorted['exp_p1-p10_agg'],df_sorted['exp_p1-p10'],color='red')
     plt.xticks(df_sorted['time'][::8],rotation=70)
     plt.xlabel("Time")
     plt.ylabel("Real Consumption")
-    plt.savefig("../out_figures/comparison_evolution/"+df_sorted.columns[c],bbox_inches='tight')
+    plt.savefig("../out_figures/comparison_evolution/agg_vs_het_"+df_sorted.columns[c][-7:-4],bbox_inches='tight')
     plt.clf()
 
 
@@ -42,10 +40,8 @@ for c in range(2,5,2):
     plt.plot(df_sorted['time'], df_sorted.T.iloc[c],'--', label="Poor ",color='orange',linewidth=2,scalex =False)
     plt.plot( df_sorted['time'], df_sorted.T.iloc[c+1],'--', label="Rich",color='blue')
     plt.legend(loc=3)
-    #x=df_sorted['time']
-    #plt.fill_between(df_sorted['time'], df_sorted['exp_p1-p10_agg'],df_sorted['exp_p1-p10'],color='red')
     plt.xticks(df_sorted['time'][::8],rotation=70)
     plt.xlabel("Time")
     plt.ylabel("Real Consumption")
-    plt.savefig("../out_figures/comparison_evolution/"+df_sorted.columns[c]+ "_rich_vs_poor",bbox_inches='tight')
+    plt.savefig("../out_figures/comparison_evolution/"+df_sorted.columns[c][-3:]+ "_rich_vs_poor",bbox_inches='tight')
     plt.clf()

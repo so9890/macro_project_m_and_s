@@ -11,6 +11,11 @@ from os import listdir
 ineq_data = pd.DataFrame(data=np.zeros((len(listdir(
     "../out_data_mngment/CEX_merged_CPI/")), 5)), columns=["year","month","sd", "Gini", "90-10"])
 
+
+# ------------------------------------------------------------------------
+# series of codes that have negative expenditure values
+# ------------------------------------------------------------------------
+to_drop = pd.read_pickle("../out_data_mngment/codes_negatives/negatives_to_drop")
 # ------------------------------------------------------------------------
 ## Read in data
 # ------------------------------------------------------------------------
@@ -24,6 +29,12 @@ data_base.columns =['UCC', 'base_value']
 for n, i in enumerate(listdir(
     "../out_data_mngment/CEX_merged_CPI/")):
     data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/"+i)
+    
+    #---------------------------------------------------------------------
+    # drop expenditure categories that have negative values in a ny period
+    #---------------------------------------------------------------------    
+    
+    data_j_i=data_j_i[~data_j_i["CodeDescription"].isin(to_drop)]
     
     # ------------------------------------------------------------------------
     # Collapse data set on percentile level

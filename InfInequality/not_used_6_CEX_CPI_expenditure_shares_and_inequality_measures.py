@@ -24,7 +24,7 @@ for n, i in enumerate(listdir(
 # drop hh-s with negative income
 #-------------------------------    
     
-    data_j_i=data_j_i[data_j_i["Weighted_exp"].values>0]
+    data_j_i=data_j_i[~data_j_i["CodeDescription"].isin(to_drop)]
     
 # ------------------------------------------------------------------------
 # Collapse data set on percentile level

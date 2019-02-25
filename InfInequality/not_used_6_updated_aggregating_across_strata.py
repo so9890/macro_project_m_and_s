@@ -11,10 +11,15 @@ from os import listdir
 ineq_data = pd.DataFrame(data=np.zeros((len(listdir(
     "../out_data_mngment/CEX_merged_CPI/")), 5)), columns=["year","month","sd", "Gini", "90-10"])
 
-
 # ------------------------------------------------------------------------
 ## Read in data
 # ------------------------------------------------------------------------
+
+#base period
+data_base = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_01_1996")
+data_base = data_base[['UCC', 'value']].drop_duplicates('UCC')
+data_base.columns =['UCC', 'base_value']
+
 
 data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_02_1996")
 data_j_lag_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_01_1996")

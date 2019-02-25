@@ -83,8 +83,8 @@ for n, i in enumerate(listdir(
         i.split('_',3)[2],
         np.std(np.log(real_exp_j_i["real_exp"].values)),
         gini(real_exp_j_i["real_exp"].values),
-        np.log(real_exp_j_i.loc[90]["real_exp"]) -
-        np.log(real_exp_j_i.loc[10]["real_exp"]),
+        np.log(real_exp_j_i.loc[89]["real_exp"]) -
+        np.log(real_exp_j_i.loc[9]["real_exp"]),
     ]
     
     # --------------------------
@@ -123,3 +123,4 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1
        
 real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p10")
 real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p90")
+

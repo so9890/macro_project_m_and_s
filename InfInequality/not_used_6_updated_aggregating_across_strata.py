@@ -20,9 +20,12 @@ data_base = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_01_1996")
 data_base = data_base[['UCC', 'value']].drop_duplicates('UCC')
 data_base.columns =['UCC', 'base_value']
 
+#set up data frame to save indices (unchaned)
+data_index = pd.DataFrame()
+
 
 data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_02_1996")
-data_j_lag_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/exp_cpi_01_1996")
+
 
 #prepare data set of lagged stratum level CPI, unique on UCC level
 # to be merged to current data set

@@ -1,5 +1,5 @@
-""" Local Projections estimation and impulse response functions plotting
-"""
+"""Local Projections estimation and impulse response functions plotting."""
+
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -14,7 +14,7 @@ for c in data.columns[2:5]:
     plt.plot(data["mm/yyyy"], data[c])
     plt.ylabel(c)
     plt.xticks(data["mm/yyyy"][::8], rotation=70)
-    plt.savefig("../out_figures/time_series_of" + c, bbox_inches="tight")
+    plt.savefig("../out_figures/new_agg_app/time_series_of" + c, bbox_inches="tight")
     plt.clf()
 
 stdev = data.loc[:157]["sd"]
@@ -22,7 +22,7 @@ stdev.name = "stdev"
 plt.plot(data.loc[:157]["mm/yyyy"], stdev)
 plt.ylabel("st. dev")
 plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
-plt.savefig("../out_figures/real_ineq_stdev", bbox_inches="tight")
+plt.savefig("../out_figures/new_agg_app/real_ineq_stdev", bbox_inches="tight")
 plt.clf()
 
 
@@ -31,7 +31,7 @@ gini_coeff.name = "gini_coeff"
 plt.plot(data.loc[:157]["mm/yyyy"], gini_coeff)
 plt.ylabel("Gini")
 plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
-plt.savefig("../out_figures/real_ineq_Gini", bbox_inches="tight")
+plt.savefig("../out_figures/new_agg_app/real_ineq_Gini", bbox_inches="tight")
 plt.clf()
 
 
@@ -40,7 +40,7 @@ p90_p10.name = "p90_p10"
 plt.plot(data.loc[:157]["mm/yyyy"], p90_p10)
 plt.ylabel("p90-p10")
 plt.xticks(data.loc[:157]["mm/yyyy"][::8], rotation=70)
-plt.savefig("../out_figures/real_ineq_p90-p10", bbox_inches="tight")
+plt.savefig("../out_figures/new_agg_app/real_ineq_p90-p10", bbox_inches="tight")
 plt.clf()
 
 
@@ -123,5 +123,5 @@ for k in [stdev, gini_coeff, p90_p10, exp_10, exp_90]:
     plt.plot([0] * (H + 1), color="red")
     plt.xlabel("time horizon")
     plt.ylabel(k.name)
-    plt.savefig("../out_figures/" + k.name, bbox_inches="tight")
-plt.clf()
+    plt.savefig("../out_figures/new_agg_app/" + k.name, bbox_inches="tight")
+    plt.clf()

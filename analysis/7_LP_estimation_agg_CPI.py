@@ -44,14 +44,14 @@ plt.savefig("../out_figures/CPIU_agg_app/real_ineq_p90-p10", bbox_inches="tight"
 plt.clf()
 
 
-exp_10 = pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/exp_series_p10")
+exp_10 = pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/log_exp_series_p10")
 exp_10 = exp_10.sort_values(by=["year", "month"])
 exp_10 = exp_10["exp_p1-p10_het"]
 exp_10.index = range(len(exp_10))
 exp_10 = exp_10[:158]
 
 
-exp_90 = pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/exp_series_p90")
+exp_90 = pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/log_exp_series_p90")
 exp_90 = exp_90.sort_values(by=["year", "month"])
 exp_90 = exp_90["exp_p90-p100_het"]
 exp_90.index = range(len(exp_90))

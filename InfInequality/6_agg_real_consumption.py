@@ -123,6 +123,11 @@ ineq_data.to_pickle("../out_data_mngment/data_for_final_analysis/data_inequality
 real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100_het'])
 real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10_het'])
 
+log_real_exp_90=pd.DataFrame(columns=['year','month','exp_p90-p100_het'])
+log_real_exp_10=pd.DataFrame(columns=['year','month','exp_p1-p10_het'])
+
+
+
 
 for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1]):
        df= pd.read_pickle("../out_data_mngment/data_for_final_analysis/"+i)
@@ -131,13 +136,25 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1
        i.split('__')[1].split('_')[0],
        np.mean((df["real_exp"][df["Percentile"]<=10]))
        ]
+       log_real_exp_10.loc[n]=[
+       i.split('__')[1].split('_')[1],
+       i.split('__')[1].split('_')[0],
+       np.mean(np.log(df["real_exp"][df["Percentile"]<=10]))
+       ]
        real_exp_90.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
        np.mean((df["real_exp"][df["Percentile"]>=91]))
        ]
+       log_real_exp_90.loc[n]=[
+       i.split('__')[1].split('_')[1],
+       i.split('__')[1].split('_')[0],
+       np.mean(np.log(df["real_exp"][df["Percentile"]>=91]))
+       ]
 
        
 real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p10")
 real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/exp_series_p90")
+log_real_exp_10.to_pickle("../out_data_mngment/data_for_final_analysis/log_exp_series_p10")
+log_real_exp_90.to_pickle("../out_data_mngment/data_for_final_analysis/log_exp_series_p90")
 

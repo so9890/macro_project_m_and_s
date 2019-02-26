@@ -1,4 +1,4 @@
-"""Calculate shares and real expenditures per percentile """
+"""Calculate shares and real expenditures per percentile usin item-startum level CPI  """
 import pandas as pd
 import numpy as np
 from functions import gini

@@ -48,7 +48,7 @@ for n, i in enumerate(listdir(
     data_j_i = pd.read_pickle("../out_data_mngment/CEX_merged_CPI/"+i)
     
     #---------------------------------------------------------------------
-    # drop expenditure categories that have negative values in a ny period
+    # drop expenditure categories that have negative values in any period
     #---------------------------------------------------------------------    
     
     data_j_i=data_j_i[~data_j_i["CodeDescription"].isin(to_drop)]

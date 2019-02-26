@@ -14,7 +14,7 @@ for c in data.columns[2:5]:
     plt.plot(data["mm/yyyy"], data[c])
     plt.ylabel(c)
     plt.xticks(data["mm/yyyy"][::8], rotation=70)
-    plt.savefig("../out_figures/CPIU_agg_app/time_series_of" + c, bbox_inches="tight")
+    plt.savefig("../out_figures/CPIU_agg_app/time_series_of" + c + "_with_agg_CPI-U", bbox_inches="tight")
     plt.clf()
 
 stdev = data.loc[:157]["sd"]
@@ -123,5 +123,5 @@ for k in [stdev, gini_coeff, p90_p10, exp_10, exp_90]:
     plt.plot([0] * (H + 1), color="red")
     plt.xlabel("time horizon")
     plt.ylabel(k.name)
-    plt.savefig("../out_figures/CPIU_agg_app/" + k.name, bbox_inches="tight")
+    plt.savefig("../out_figures/CPIU_agg_app/" + k.name + "_with_agg_CPI-U", bbox_inches="tight")
     plt.clf()

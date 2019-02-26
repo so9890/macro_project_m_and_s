@@ -27,7 +27,7 @@ plt.plot( real_90['time'][1:-1], real_90['exp_p90-p100_het'][1:-1], label="Riche
 plt.legend(loc=2)
 plt.xticks(real_10['time'][1:-1][::8],rotation=70)
 plt.xlabel("Time")
-plt.ylabel("Real Consumption")
+plt.ylabel("Well being")
 plt.savefig("../out_figures/comparison_evolution/NEW_10_90_evolution",bbox_inches='tight')
 plt.clf()
 

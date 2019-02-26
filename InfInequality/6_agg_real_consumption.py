@@ -3,6 +3,23 @@ import pandas as pd
 import numpy as np
 from functions import gini
 from os import listdir
+import os
+
+#-----------------------------------------------
+# Clear directory before running the code anew
+#-----------------------------------------------
+
+folder = "../out_data_mngment/data_for_final_analysis/"
+for the_file in os.listdir(folder):
+    file_path = os.path.join(folder, the_file)
+    try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+        #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+    except Exception as e:
+        print(e)
+
+
 
 # ------------------------------------------------------------------------
 # DataFrame of inequality time series

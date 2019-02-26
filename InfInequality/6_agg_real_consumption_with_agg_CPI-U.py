@@ -3,7 +3,20 @@ import pandas as pd
 import numpy as np
 from functions import gini
 from os import listdir
+import os
+#-----------------------------------------------
+# Clear directory before running the code anew
+#-----------------------------------------------
 
+folder = "../out_data_mngment/data_for_final_analysis_agg_cpi/"
+for the_file in os.listdir(folder):
+    file_path = os.path.join(folder, the_file)
+    try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+        #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+    except Exception as e:
+        print(e)
 # ------------------------------------------------------------------------
 # DataFrame of inequality time series
 # ------------------------------------------------------------------------
@@ -27,6 +40,7 @@ to_drop = pd.read_pickle("../out_data_mngment/codes_negatives/negatives_to_drop"
 CPI_series = pd.read_csv("../original_data/CPI_Data/CPI_agg_series.csv")[["Year","Period","Value"]]
 for i in range(len(CPI_series)):
     CPI_series.at[i,"Period"] = str(CPI_series.at[i,"Period"][1:])+'_'+str(CPI_series.at[i,"Year"])
+    CPI_series.at[i,"Value"] =  CPI_series.at[i,"Value"] /  CPI_series.at[12,"Value"]
 #CPI_series.loc[:]["Period"]=CPI_series.loc[:]["Period"][1:]
 #CPI_series['mm/yyyy'] = CPI_series["Period"][1:]+CPI_series["Year"]
 

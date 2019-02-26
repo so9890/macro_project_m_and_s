@@ -129,12 +129,12 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis/")[:-1
        real_exp_10.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
-       np.mean(np.log(df["real_exp"][df["Percentile"]<=10]))
+       np.mean((df["real_exp"][df["Percentile"]<=10]))
        ]
        real_exp_90.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
-       np.mean(np.log(df["real_exp"][df["Percentile"]>=91]))
+       np.mean((df["real_exp"][df["Percentile"]>=91]))
        ]
 
        

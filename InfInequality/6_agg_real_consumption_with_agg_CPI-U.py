@@ -38,9 +38,10 @@ to_drop = pd.read_pickle("../out_data_mngment/codes_negatives/negatives_to_drop"
 #data_base = data_base[['UCC', 'value']].drop_duplicates('UCC')
 #data_base.columns =['UCC', 'base_value']
 CPI_series = pd.read_csv("../original_data/CPI_Data/CPI_agg_series.csv")[["Year","Period","Value"]]
+base = CPI_series.at[12,"Value"]
 for i in range(len(CPI_series)):
     CPI_series.at[i,"Period"] = str(CPI_series.at[i,"Period"][1:])+'_'+str(CPI_series.at[i,"Year"])
-    CPI_series.at[i,"Value"] =  CPI_series.at[i,"Value"] /  CPI_series.at[12,"Value"]
+    CPI_series.at[i,"Value"] =  CPI_series.at[i,"Value"] /  base
 #CPI_series.loc[:]["Period"]=CPI_series.loc[:]["Period"][1:]
 #CPI_series['mm/yyyy'] = CPI_series["Period"][1:]+CPI_series["Year"]
 
@@ -103,12 +104,12 @@ for n,i in enumerate(listdir("../out_data_mngment/data_for_final_analysis_agg_cp
        real_exp_10.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
-       np.mean(np.log(df["real_exp"][df["Percentile"]<=10]))
+       np.mean((df["real_exp"][df["Percentile"]<=10]))
        ]
        real_exp_90.loc[n]=[
        i.split('__')[1].split('_')[1],
        i.split('__')[1].split('_')[0],
-       np.mean(np.log(df["real_exp"][df["Percentile"]>=91]))
+       np.mean((df["real_exp"][df["Percentile"]>=91]))
        ]
 
        

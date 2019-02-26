@@ -22,10 +22,10 @@ for i in [10,90]:
     
         
 # figure for poor
-plt.plot(real_10['time'][2:-1], real_10['exp_p1-p10_het'][2:-1], label="Poorest 10% ",color='orange',linewidth=2, scalex =False)
-plt.plot( real_90['time'][2:-1], real_90['exp_p90-p100_het'][2:-1], label="Richest 10%",color='blue')
+plt.plot(real_10['time'][1:-1], real_10['exp_p1-p10_het'][1:-1], label="Poorest 10% ",color='orange',linewidth=2, scalex =False)
+plt.plot( real_90['time'][1:-1], real_90['exp_p90-p100_het'][1:-1], label="Richest 10%",color='blue')
 plt.legend(loc=2)
-plt.xticks(real_10['time'][2:-1][::8],rotation=70)
+plt.xticks(real_10['time'][1:-1][::8],rotation=70)
 plt.xlabel("Time")
 plt.ylabel("Real Consumption")
 plt.savefig("../out_figures/comparison_evolution/NEW_10_90_evolution_with_agg_CPI",bbox_inches='tight')

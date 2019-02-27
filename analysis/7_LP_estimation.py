@@ -4,21 +4,29 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
 
 
 data = pd.read_pickle("../out_data_mngment/data_for_final_analysis/data_inequality")
 data_1 = pd.read_pickle("../out_data_mngment/data_for_final_analysis_agg_cpi/data_inequality")
-for x in [data,data_1]:
-    x = x.sort_values(by=["year", "month"])
-    x.index = range(len(x))
-    x["mm/yyyy"] = x["month"] + "/" + x["year"]
+
+data = data.sort_values(by=["year", "month"])
+data.index = range(len(data))
+data["mm/yyyy"] = data["month"] + "/" + data["year"]
+
+data_1 = data_1.sort_values(by=["year", "month"])
+data_1.index = range(len(data_1))
+data_1["mm/yyyy"] = data_1["month"] + "/" + data_1["year"]
+
+#---------------------------------------------------
+# Plot time series of inequality measures to compare
+#---------------------------------------------------
 for c in data.columns[2:5]:
     plt.plot(data["mm/yyyy"], data[c],label = "stratum-level CPI")
     plt.plot(data["mm/yyyy"], data_1[c],label = "aggregate CPI")
     plt.ylabel(c)
     plt.xticks(data["mm/yyyy"][::8], rotation=70)
-    plt.savefig("../out_figures/new_agg_app/time_series_of" + c, bbox_inches="tight")
+    plt.legend(loc=8)
+    plt.savefig("../out_figures/new_agg_app/combined_time_series_of" + c, bbox_inches="tight")
     plt.clf()
 
 stdev = data.loc[:157]["sd"]

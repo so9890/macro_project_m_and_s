@@ -33,8 +33,8 @@ for i in [10,90]:
 # figure for poor
 
 
-plt.plot(real_10['time'][1:-1], real_10['exp_p1-p10_het'][1:-1], label="het CPI ",color='orange',linewidth=2, scalex =False)
-plt.plot( real_10['time'][1:-1], real_10_1['exp_p1-p10_het'][1:-1], label="agg CPI",color='blue')
+plt.plot(real_10['time'][1:-1], real_10['exp_p1-p10_het'][1:-1], label="Item-stratum CPI ",color='orange',linewidth=2, scalex =False)
+plt.plot( real_10['time'][1:-1], real_10_1['exp_p1-p10_het'][1:-1], label="Aggregate CPI",color='blue')
 plt.legend(loc=2)
 plt.plot(real_90['time'][1:-1], real_90['exp_p90-p100_het'][1:-1], label="het CPI ",color='orange',linewidth=2, scalex =False)
 plt.plot( real_90['time'][1:-1], real_90_1['exp_p90-p100_het'][1:-1], label="agg CPI",color='blue')

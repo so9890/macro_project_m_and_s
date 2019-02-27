@@ -256,15 +256,6 @@ for s, i in enumerate(list_2[9:]):
     d_percentiles_i_j.to_pickle("../out_data_mngment/Percentiles/" + i)
     print(len(list_2[9:]) - s - 1, "datasets left to generate")
 
-for s, i in enumerate(list_q_y):
-    q=range(int(i.split('_')[0])*3-2,int(i.split('_')[0])*3+1)
-    y=int(i.split('_')[1])
-    x=[ii for ii in list_1 if (int(ii.split('_')[0]) in q and int(ii.split('_')[1])==y)]
-    data_q_y = pd.concat([data_dict[k] for k in x])
-    data_q_y = data_q_y.groupby(["NEWID"]).sum() #what to do with te weights???
-    d_percentiles = weights_percentiles(data_q_y)
-    d_per_q_y=d_percentiles[["NEWID", "FINLWT21", "Percentile"]]
-    d_per_qy.to_pickle("../out_data_mngment/Percentiles/" +"Q"+i)
-    print(len(list_q_y) - s - 1, "datasets left to generate")
+
 
     

@@ -65,7 +65,6 @@ shock_series = (
     
 shock_series.index=data.index[:158]
 
-shock_series = shock_series - seasonal_decompose(shock_series, model='additive').seasonal
 
 
 
